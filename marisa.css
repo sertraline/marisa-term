@@ -71,8 +71,8 @@ p.inline {
 
 p.inline-output {
     flex-basis: 100%;
-    word-break: break-all;
-    white-space: pre;
+    word-break: break-word;
+    white-space: pre-line;
 }
 
 p.inline-pre {
@@ -81,6 +81,12 @@ p.inline-pre {
     white-space: pre-line;
     max-height: 24px;
     padding-right: 4px;
+    color: #0082ff;
+}
+
+a {
+    text-decoration: none;
+    border-bottom: 1px dashed #0082ff;
     color: #0082ff;
 }
 
