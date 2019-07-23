@@ -43,96 +43,96 @@ let commands = [
         "name": "list",
         "command": "ls",
         "exec": listDirectory
-	},
-	{
-		"name": "changedir",
-		"command": "cd",
-		"exec": changeDirectory
-	},
-	{
-		"name": "cat",
-		"command": "cat",
-		"exec": cat
-	}
+    },
+    {
+        "name": "changedir",
+        "command": "cd",
+        "exec": changeDirectory
+    },
+    {
+        "name": "cat",
+        "command": "cat",
+        "exec": cat
+    }
 ]
 
 function listDirectory() {
     directories = "..";
     hierarchy.forEach(function(item) {
-		if(item.current && !item.filedata) { item.command = "." }
+        if(item.current && !item.filedata) { item.command = "." }
         directories += '	' + item.command;
-	})
+    })
     return directories;
 }
 
 function changeDirectory(new_dir) {
-	msg = undefined;
-	new_dir = new_dir.replace('~', '/home/anon/')
-	hierarchy.forEach(function(item) {
-		if(new_dir == item.name) {
-			if(item.filedata) {
-				msg = `cd: not a directory: ${new_dir}`;
-				return msg;
-			}
-		}
-		if(new_dir == ".") {
-			msg = " ";
-			return msg;
-		}
-		if(new_dir == "..") {
-			path = ""
-			hierarchy.forEach(function(item) {
-				if(item.current) {
-					if(item.parent) {
+    msg = undefined;
+    new_dir = new_dir.replace('~', '/home/anon/')
+    hierarchy.forEach(function(item) {
+        if(new_dir == item.name) {
+            if(item.filedata) {
+                msg = `cd: not a directory: ${new_dir}`;
+                return msg;
+            }
+        }
+        if(new_dir == ".") {
+            msg = " ";
+            return msg;
+        }
+        if(new_dir == "..") {
+            path = ""
+            hierarchy.forEach(function(item) {
+                if(item.current) {
+                    if(item.parent) {
                         path = item.parent;
-					}
-				}
-				if(path == item.name) {
-					item.current = true;
-					return item;
-				}
-			})
-		}
-		msg = " ";
-	})
-	if (!msg) {
-		hierarchy.forEach(function(item) {
-			item.current = false;
-		})
-		hierarchy.forEach(function(item) {
-			if(new_dir == item.name) {
-				item.current = true;
-				return item;
-			}
-		})
-		msg = " ";
-	}
-	return msg;
+                    }
+                }
+                if(path == item.name) {
+                    item.current = true;
+                    return item;
+                }
+            })
+        }
+        msg = " ";
+    })
+    if (!msg) {
+        hierarchy.forEach(function(item) {
+            item.current = false;
+        })
+        hierarchy.forEach(function(item) {
+            if(new_dir == item.name) {
+                item.current = true;
+                return item;
+            }
+        })
+        msg = " ";
+    }
+    return msg;
 }
 
 function cat(file) {
-	hierarchy.forEach(function(item) {
-		if(file == item.name) {
-			if(item.filedata) {
-				msg = item.filedata;
-				return msg;
-			}
-		}
-	})
-	return msg;
+    hierarchy.forEach(function(item) {
+        if(file == item.name) {
+            if(item.filedata) {
+                msg = item.filedata;
+                return msg;
+            }
+        }
+    })
+    return msg;
 }
 
 function evaluate(value) {
-	result = undefined;
-	value = value.split(" ");
+    result = undefined;
+    value = value.split(" ");
     commands.forEach(function(item) {
         if(item.command == value[0]) {
             result = item.exec(value[1]);
             return result;
         }
-	})
-	result = result ? result : `marisa-term: command not found: ${value}`;
-	return result;
+    })
+    result = result ? result : `marisa-term: command not found: ${value}`;
+    return result;
 }
 
 function getKeyPress(element) {
@@ -149,11 +149,11 @@ function getKeyPress(element) {
             exec = evaluate(val);
         }
         if(exec.trim()) {
-			let output = document.createElement("p");
-			output.innerHTML = exec;
-			output.setAttribute("class", "inline-output");
-			element.parentElement.appendChild(output);
-		}
+            let output = document.createElement("p");
+            output.innerHTML = exec;
+            output.setAttribute("class", "inline-output");
+            element.parentElement.appendChild(output);
+        }
 
         element.outerHTML = "";  
         getPrompt(); 
@@ -167,11 +167,11 @@ function autoGrow(element) {
 }
 
 function getPrompt(prompt_message) {
-	hierarchy.forEach(function(item) {
-		if(item.current == true) {
-			prompt_message = `[${item.name.replace("/home/anon/", "~")}] 良い `;
-		}
-	})
+    hierarchy.forEach(function(item) {
+        if(item.current == true) {
+            prompt_message = `[${item.name.replace("/home/anon/", "~")}] 良い `;
+        }
+    })
     let container = document.createElement("div");
     container.setAttribute("class", "container");
 
