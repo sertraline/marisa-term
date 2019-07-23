@@ -151,7 +151,7 @@ let groupsls = [
     "aurora"
 ]
 
-let hostname = "horizon";
+let user_hostname = "horizon";
 
 let hierarchy = [
     {
