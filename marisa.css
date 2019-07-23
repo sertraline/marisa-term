@@ -4,11 +4,6 @@
     font-display: swap
 }
 
-@font-face {
-    font-family: IBM_PLEX;
-    src: url(IBMPlexSans-Regular.ttf)
-}
-
 body,
 html {
     margin: 0 !important;
@@ -44,6 +39,85 @@ body {
     background: #000
 }
 
+#wrapper {
+    width: 95%;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+p {
+    width: 90%;
+    white-space: pre;
+    color: white;
+    margin: 0;
+    padding-left: 20px;
+    padding-bottom: 5px;
+}
+
+p.image {
+    background: url('/css/marisa.gif');
+    height: 140px;
+    background-repeat: no-repeat;
+}
+
+p.inline {
+    display: flex;
+    flex: 1;
+    width: auto;
+    white-space: pre-line;
+    word-break: break-all;
+    padding-left: 12px;
+}
+
+p.inline-output {
+    flex-basis: 100%;
+    word-break: break-all;
+    white-space: pre;
+}
+
+p.inline-pre {
+    display: flex;
+    width: auto;
+    white-space: pre-line;
+    max-height: 24px;
+    padding-right: 4px;
+    color: #0082ff;
+}
+
+.hg-succ {
+    color: green;
+}
+
+.hg-fail {
+    color: red;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.shell {
+    font-family: Nouveau_IBM;
+    display: flex;
+    flex: 1;
+    height: auto;
+    overflow:hidden;
+    min-height: 48px;
+    white-space: pre-line;
+    word-break: break-all;
+    background-color: #000;
+    color: white;
+    border: 0;
+    resize: none;
+    padding-left: 12px;
+}
+
+.file {
+    color: rgb(44, 155, 77);
+}
 
 @media only screen and (max-width:801px) {
 
