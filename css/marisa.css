@@ -75,6 +75,10 @@ p.inline-output {
     white-space: pre-line;
 }
 
+p.inline-hidden {
+    display: none;
+}
+
 p.inline-pre {
     display: flex;
     width: auto;

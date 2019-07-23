@@ -1,4 +1,6 @@
 
+shell_history = []
+
 const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
 }  
@@ -78,15 +80,33 @@ let commands = [
         "name": "get host by name",
         "command": "host",
         "exec": host
+    },
+    {
+        "name": "help",
+        "command": "help",
+        "exec": help
     }
 ]
+
+function help() {
+    return `$ hextorgb
+    $ host
+    $ ls
+    $ cd
+    $ whoami
+    $ groups
+    $ cat
+    
+    Ctrl+L: clear terminal
+    Arrow up: navigate through history`;
+}
 
 function apiCall(params, callback) {
     // params = {
     // "req": command,
     // "args": args }
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://tsunagari.space/api.php', true);
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api.php', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.onload = function () {
         callback(xhr.responseText);
@@ -99,10 +119,12 @@ function apiCall(params, callback) {
 }
 
 function host(website, callback) {
-    if(!website) { return "host: please, specify a website."}
-    response = apiCall({ req: "host", args: website }, function(response) {
-        callback(response);
-    });
+    if(!website) { callback("host: please, specify a website.") }
+    else {
+        response = apiCall({ req: "host", args: website }, function(response) {
+            callback(response);
+        });
+    }
 }
 
 function hextorgb(hex) {
@@ -218,32 +240,38 @@ function cat(file) {
 function evaluate(value, callback) {
     result = undefined;
     value = value.split(" ");
+    counter = 0;
     commands.forEach(function(item) {
         if(item.command == value[0]) {
             if(item.command == "host") {
                 response = item.exec(value[1], function(response) {
-                    console.log(response);
                     callback(response);
                 })
             } else {
                 response = item.exec(value[1]);
                 callback(response);
             }
+        } else {
+            counter++;
         }
     })
+    if(Object.keys(commands).length == counter) { callback(`marisa-term: command not found: ${value}`)}
 }
 
 function getKeyPress(element) {
     if(event.key === 'Enter') {
         event.preventDefault();
         let val = element.value;
-
+        if(shell_history.length <= 25 && val) {
+            shell_history.push(val);
+        }
         let history = document.createElement("p");
         history.innerHTML = val;
         history.setAttribute("class", "inline");
         element.parentElement.appendChild(history);
 
         let output = document.createElement("p");
+        output.setAttribute("class", "inline-hidden");
 
         if(val) {
             exec = evaluate(val, async function(response) {
@@ -306,7 +334,12 @@ function globalHotkeys(event) {
         event.preventDefault(); 
     }
     if(event.keyCode == 38) {
-        document.getElementById("shell").value = 'aaa';
+        value = shell_history[shell_history.length - 1]
+        if(value) {
+            document.getElementById("shell").value = value;
+        }
+        shell_history.pop();
+        shell_history.unshift(value);
         event.preventDefault(); 
     }
     if(event.ctrlKey && event.keyCode == 67) {
