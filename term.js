@@ -66,6 +66,7 @@ function listDirectory() {
 }
 
 function changeDirectory(new_dir) {
+    if(!new_dir) { new_dir = "." }
     msg = undefined;
     new_dir = new_dir.replace('~', '/home/anon/')
     hierarchy.forEach(function(item) {
@@ -111,6 +112,7 @@ function changeDirectory(new_dir) {
 }
 
 function cat(file) {
+    if(!file) { msg = "cat: cat. Cat?"}
     hierarchy.forEach(function(item) {
         if(file == item.name) {
             if(item.filedata) {
