@@ -53,8 +53,70 @@ let commands = [
         "name": "cat",
         "command": "cat",
         "exec": cat
+    },
+    {
+        "name": "whoami",
+        "command": "whoami",
+        "exec": whoami
+    },
+    {
+        "name": "groups",
+        "command": "groups",
+        "exec": groups
+    },
+    {
+        "name": "hostname",
+        "command": "hostname",
+        "exec": host
+    },
+    {
+        "name": "hextorgb",
+        "command": "hextorgb",
+        "exec": hextorgb
     }
 ]
+
+function hextorgb(hex) {
+    //https://github.com/30-seconds/30-seconds-of-code#hextorgb-
+    if(!hex) { return "hextorgb: please, specify hex code: hextorgb #000000" }
+    let alpha = false,
+        h = hex.slice(hex.startsWith('#') ? 1 : 0);
+    if (h.length === 3) h = [...h].map(x => x + x).join('');
+    else if (h.length === 8) alpha = true;
+    h = parseInt(h, 16);
+    return (
+        'rgb' +
+        (alpha ? 'a' : '') +
+        '(' +
+        (h >>> (alpha ? 24 : 16)) +
+        ', ' +
+        ((h & (alpha ? 0x00ff0000 : 0x00ff00)) >>> (alpha ? 16 : 8)) +
+        ', ' +
+        ((h & (alpha ? 0x0000ff00 : 0x0000ff)) >>> (alpha ? 8 : 0)) +
+        (alpha ? `, ${h & 0x000000ff}` : '') +
+        ')'
+    );
+}
+
+function whoami() {
+    return user;
+}
+
+function groups(user) {
+    if(!user) { return groupsls.join(' ') }
+    let msg = "";
+    groupsls.forEach(function(item) {
+        if(item == user) {
+            msg = item;
+            return msg;
+        }
+    })
+    return msg;
+}
+
+function host() {
+    return hostname;
+}
 
 function listDirectory() {
     directories = "..";
@@ -68,7 +130,7 @@ function listDirectory() {
 function changeDirectory(new_dir) {
     if(!new_dir) { new_dir = "." }
     msg = undefined;
-    new_dir = new_dir.replace('~', '/home/anon/')
+    new_dir = new_dir.replace('~', `/home/${user}/`)
     hierarchy.forEach(function(item) {
         if(new_dir == item.name) {
             if(item.filedata) {
@@ -149,12 +211,12 @@ function getKeyPress(element) {
 
         if(val) {
             exec = evaluate(val);
-        }
-        if(exec.trim()) {
-            let output = document.createElement("p");
-            output.innerHTML = exec;
-            output.setAttribute("class", "inline-output");
-            element.parentElement.appendChild(output);
+            if(exec.trim()) {
+                let output = document.createElement("p");
+                output.innerHTML = exec;
+                output.setAttribute("class", "inline-output");
+                element.parentElement.appendChild(output);
+            }
         }
 
         element.outerHTML = "";  
@@ -183,7 +245,7 @@ function getPrompt(prompt_message) {
 
     let inp = document.createElement("textarea");
     inp.setAttribute("type", "text");
-    inp.setAttribute("class", "shell");
+    inp.setAttribute("id", "shell");
     inp.setAttribute("onkeydown", "getKeyPress(this)");
     inp.setAttribute("oninput", "autoGrow(this)");
 
@@ -193,6 +255,35 @@ function getPrompt(prompt_message) {
     container.appendChild(inp);
     screen.appendChild(container);
     inp.focus();
+}
+
+document.addEventListener("keydown", globalHotkeys, false);
+
+function globalHotkeys(event) {
+    if(event.ctrlKey && event.keyCode == 76) { 
+        let screen = document.getElementById("screen");
+        screen.innerHTML = "";
+        greeting();
+        getPrompt();
+        event.preventDefault(); 
+    }
+    if(event.keyCode == 38) {
+        document.getElementById("shell").value = 'aaa';
+        event.preventDefault(); 
+    }
+    if(event.ctrlKey && event.keyCode == 67) {
+        let val = document.getElementById("shell");
+        let container = val.parentElement;
+
+        let history = document.createElement("p");
+        history.innerHTML = val.value;
+        history.setAttribute("class", "inline");
+        container.appendChild(history);
+
+        document.getElementById("shell").outerHTML = "";
+        getPrompt();
+        event.preventDefault(); 
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
