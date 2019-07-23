@@ -67,14 +67,43 @@ let commands = [
     {
         "name": "hostname",
         "command": "hostname",
-        "exec": host
+        "exec": hostname
     },
     {
         "name": "hextorgb",
         "command": "hextorgb",
         "exec": hextorgb
+    },
+    {
+        "name": "get host by name",
+        "command": "host",
+        "exec": host
     }
 ]
+
+function apiCall(params, callback) {
+    // params = {
+    // "req": command,
+    // "args": args }
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://tsunagari.space/api.php', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.onload = function () {
+        callback(xhr.responseText);
+    };
+    payload = ""
+    Object.keys(params).forEach(function(key) {
+        payload += key + '=' + params[key] + '&';
+    })
+    xhr.send(payload);
+}
+
+function host(website, callback) {
+    if(!website) { return "host: please, specify a website."}
+    response = apiCall({ req: "host", args: website }, function(response) {
+        callback(response);
+    });
+}
 
 function hextorgb(hex) {
     //https://github.com/30-seconds/30-seconds-of-code#hextorgb-
@@ -114,8 +143,8 @@ function groups(user) {
     return msg;
 }
 
-function host() {
-    return hostname;
+function hostname() {
+    return user_hostname;
 }
 
 function listDirectory() {
@@ -186,17 +215,22 @@ function cat(file) {
     return msg;
 }
 
-function evaluate(value) {
+function evaluate(value, callback) {
     result = undefined;
     value = value.split(" ");
     commands.forEach(function(item) {
         if(item.command == value[0]) {
-            result = item.exec(value[1]);
-            return result;
+            if(item.command == "host") {
+                response = item.exec(value[1], function(response) {
+                    console.log(response);
+                    callback(response);
+                })
+            } else {
+                response = item.exec(value[1]);
+                callback(response);
+            }
         }
     })
-    result = result ? result : `marisa-term: command not found: ${value}`;
-    return result;
 }
 
 function getKeyPress(element) {
@@ -209,18 +243,22 @@ function getKeyPress(element) {
         history.setAttribute("class", "inline");
         element.parentElement.appendChild(history);
 
+        let output = document.createElement("p");
+
         if(val) {
-            exec = evaluate(val);
-            if(exec.trim()) {
-                let output = document.createElement("p");
-                output.innerHTML = exec;
-                output.setAttribute("class", "inline-output");
-                element.parentElement.appendChild(output);
-            }
+            exec = evaluate(val, async function(response) {
+                if(response.trim()) {
+                    output.innerHTML = response;
+                    output.setAttribute("class", "inline-output");
+                    val = undefined;
+                }                 
+            });
         }
 
+        element.parentNode.appendChild(output);
         element.outerHTML = "";  
         getPrompt(); 
+
         window.scrollTo(0,document.body.scrollHeight);
     }
 }
@@ -287,15 +325,7 @@ function globalHotkeys(event) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    promise_finish = greeting().then(async function(is_finished) {
-        while(true) {
-            if(is_finished != "done") {
-                await sleep(100);
-            }
-            else {
-                getPrompt();
-                break;
-            }
-        }
+    promise_finish = greeting().then(function() {
+        getPrompt();
     })
  }, false);
