@@ -130,7 +130,19 @@ let message = `
 Welcome to marisa-term!
 marisa-term 0.01 ${date} (horizon) (tty1)\n`;
 
-let links = `https://tsunagari.space/ `
+let raw_links = `https://tsunagari.space/ `.split('\n');
+
+function urlify(text) {
+    let url_regex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(url_regex, function(url) {
+        return '<a href="' + url + '">' + url + '</a>';
+    })
+}
+
+let links = "";
+raw_links.forEach(function(item) {
+    links += urlify(item) + '\n';
+})
 
 let hierarchy = [
     {
