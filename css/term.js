@@ -1,6 +1,61 @@
 
 shell_history = []
 
+let commands = [
+    {
+        "name": "list directories",
+        "command": "ls",
+        "exec": listDirectory
+    },
+    {
+        "name": "change directory",
+        "command": "cd",
+        "exec": changeDirectory
+    },
+    {
+        "name": "concatenate",
+        "command": "cat",
+        "exec": cat
+    },
+    {
+        "name": "whoami",
+        "command": "whoami",
+        "exec": whoami
+    },
+    {
+        "name": "groups",
+        "command": "groups",
+        "exec": groups
+    },
+    {
+        "name": "hostname",
+        "command": "hostname",
+        "exec": hostname
+    },
+    {
+        "name": "hex code -> rgb",
+        "command": "hextorgb",
+        "exec": hextorgb
+    },
+    {
+        "name": "get host by name",
+        "command": "host",
+        "callback": true,
+        "exec": host
+    },
+    {
+        "name": "get weather",
+        "command": "weather",
+        "callback": true,
+        "exec": weather
+    },
+    {
+        "name": "show help",
+        "command": "help",
+        "exec": help
+    }
+]
+
 const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
 }  
@@ -40,65 +95,14 @@ async function greeting() {
     return new String("done")
 }
 
-let commands = [
-    {
-        "name": "list",
-        "command": "ls",
-        "exec": listDirectory
-    },
-    {
-        "name": "changedir",
-        "command": "cd",
-        "exec": changeDirectory
-    },
-    {
-        "name": "cat",
-        "command": "cat",
-        "exec": cat
-    },
-    {
-        "name": "whoami",
-        "command": "whoami",
-        "exec": whoami
-    },
-    {
-        "name": "groups",
-        "command": "groups",
-        "exec": groups
-    },
-    {
-        "name": "hostname",
-        "command": "hostname",
-        "exec": hostname
-    },
-    {
-        "name": "hextorgb",
-        "command": "hextorgb",
-        "exec": hextorgb
-    },
-    {
-        "name": "get host by name",
-        "command": "host",
-        "exec": host
-    },
-    {
-        "name": "help",
-        "command": "help",
-        "exec": help
-    }
-]
 
 function help() {
-    return `$ hextorgb
-    $ host
-    $ ls
-    $ cd
-    $ whoami
-    $ groups
-    $ cat
-    
-    Ctrl+L: clear terminal
-    Arrow up: navigate through history`;
+    let msg = ""
+    commands.forEach(function(item) {
+        msg += item.command + ': ' + item.name + '\n';
+    })
+    msg += "\nEsc: set/unset focus\nCtrl+L: clear terminal\nArrow up: navigate through history";
+    return msg;
 }
 
 function apiCall(params, callback) {
@@ -106,7 +110,7 @@ function apiCall(params, callback) {
     // "req": command,
     // "args": args }
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api.php', true);
+    xhr.open('POST', '/api', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.onload = function () {
         callback(xhr.responseText);
@@ -118,7 +122,18 @@ function apiCall(params, callback) {
     xhr.send(payload);
 }
 
-function host(website, callback) {
+function weather(args, callback) {
+    let city = args.slice(1).join(' ');
+    if(!city) { callback("weather: please, specify your city.")}
+    else {
+        response = apiCall({ req: "weather", args: city }, function(response) {
+            callback(response);
+        });
+    }
+}
+
+function host(args, callback) {
+    let website = args[1];
     if(!website) { callback("host: please, specify a website.") }
     else {
         response = apiCall({ req: "host", args: website }, function(response) {
@@ -127,13 +142,14 @@ function host(website, callback) {
     }
 }
 
-function hextorgb(hex) {
+function hextorgb(args) {
     //https://github.com/30-seconds/30-seconds-of-code#hextorgb-
+    let hex = args[1];
     if(!hex) { return "hextorgb: please, specify hex code: hextorgb #000000" }
     let alpha = false,
         h = hex.slice(hex.startsWith('#') ? 1 : 0);
     if (h.length === 3) h = [...h].map(x => x + x).join('');
-    else if (h.length === 8) alpha = true;
+    else if(h.length === 8) alpha = true;
     h = parseInt(h, 16);
     return (
         'rgb' +
@@ -153,7 +169,8 @@ function whoami() {
     return user;
 }
 
-function groups(user) {
+function groups(args) {
+    let user = args[1];
     if(!user) { return groupsls.join(' ') }
     let msg = "";
     groupsls.forEach(function(item) {
@@ -178,7 +195,8 @@ function listDirectory() {
     return directories;
 }
 
-function changeDirectory(new_dir) {
+function changeDirectory(args) {
+    let new_dir = args[1];
     if(!new_dir) { new_dir = "." }
     let msg = undefined;
     new_dir = new_dir.replace('~', `/home/${user}/`)
@@ -189,11 +207,11 @@ function changeDirectory(new_dir) {
                 return msg;
             }
         }
-        else if (new_dir == ".") {
+        else if(new_dir == ".") {
             msg = " ";
             return msg;
         }
-        else if (new_dir == "..") {
+        else if(new_dir == "..") {
             let path = ""
             hierarchy.forEach(function(item) {
                 if(item.current) {
@@ -224,7 +242,8 @@ function changeDirectory(new_dir) {
     return msg;
 }
 
-function cat(file) {
+function cat(args) {
+    let file = args[1];
     if(!file) { msg = "cat: cat. Cat?"}
     hierarchy.forEach(function(item) {
         if(file == item.name) {
@@ -239,16 +258,16 @@ function cat(file) {
 
 function evaluate(value, callback) {
     let result = undefined;
-    value = value.split(" ");
+    values = value.split(" ");
     let counter = 0;
     commands.forEach(function(item) {
-        if(item.command == value[0]) {
-            if(item.command == "host") {
-                response = item.exec(value[1], function(response) {
+        if(item.command == values[0]) {
+            if(item.callback) {
+                response = item.exec(values, function(response) {
                     callback(response);
                 })
             } else {
-                response = item.exec(value[1]);
+                response = item.exec(values);
                 callback(response);
             }
         } else {
@@ -283,13 +302,14 @@ function getKeyPress(element) {
                     output.setAttribute("class", "inline-output");
                     val = undefined;
                     window.scrollTo(0,document.body.scrollHeight);
-                }                 
+                }
+                getPrompt();
+                window.scrollTo(0,document.body.scrollHeight);         
             });
         }
 
         element.parentNode.appendChild(output);
-        element.outerHTML = "";  
-        getPrompt(); 
+        element.outerHTML = "";   
 
         window.scrollTo(0,document.body.scrollHeight);
     }
@@ -303,7 +323,7 @@ function autoGrow(element) {
 function getPrompt(prompt_message) {
     hierarchy.forEach(function(item) {
         if(item.current == true) {
-            prompt_message = `[${item.name.replace("/home/anon/", "~")}] 良い `;
+            prompt_message = `[${item.name.replace(`/home/anon/`, "~")}] 良い `;
         }
     })
     let container = document.createElement("div");
@@ -316,6 +336,7 @@ function getPrompt(prompt_message) {
     let inp = document.createElement("textarea");
     inp.setAttribute("type", "text");
     inp.setAttribute("id", "shell");
+    inp.setAttribute("rows", 1);
     inp.setAttribute("onkeydown", "getKeyPress(this)");
     inp.setAttribute("oninput", "autoGrow(this)");
 
@@ -330,7 +351,13 @@ function getPrompt(prompt_message) {
 document.addEventListener("keydown", globalHotkeys, false);
 
 function globalHotkeys(event) {
+    if(event.keyCode == 27) {
+        // esc
+        let inp = document.getElementById("shell");
+        inp.focus();
+    }
     if(event.ctrlKey && event.keyCode == 76) { 
+        // ctrl+l
         let screen = document.getElementById("screen");
         screen.innerHTML = "";
         greeting();
@@ -338,6 +365,7 @@ function globalHotkeys(event) {
         event.preventDefault(); 
     }
     if(event.keyCode == 38) {
+        // arrow up
         value = shell_history[shell_history.length - 1]
         if(value) {
             document.getElementById("shell").value = value;
@@ -347,6 +375,7 @@ function globalHotkeys(event) {
         event.preventDefault(); 
     }
     if(event.ctrlKey && event.keyCode == 67) {
+        // enter
         let val = document.getElementById("shell");
         let container = val.parentElement;
 

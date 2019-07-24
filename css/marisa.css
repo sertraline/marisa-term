@@ -43,6 +43,7 @@ body {
     width: 95%;
     margin: 0;
     overflow-x: hidden;
+    padding-bottom: 24px;
 }
 
 p {
@@ -67,12 +68,13 @@ p.inline {
     white-space: pre-line;
     word-break: break-all;
     padding-left: 12px;
+    padding-top: 1px;
 }
 
 p.inline-output {
     flex-basis: 100%;
     word-break: break-word;
-    white-space: pre-line;
+    white-space: pre-wrap;
 }
 
 p.inline-hidden {
@@ -115,7 +117,7 @@ a {
     flex: 1;
     height: auto;
     overflow:hidden;
-    min-height: 48px;
+    min-height: 24px;
     white-space: pre-line;
     word-break: break-all;
     background-color: #000;

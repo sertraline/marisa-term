@@ -1,6 +1,6 @@
 from app import app
+from app import processing
 from flask import request
-from socket import gethostbyname
 
 @app.route('/')
 @app.route('/index')
@@ -10,13 +10,22 @@ def index():
 @app.route('/api', methods = ['POST'])
 def api():
     data = request.form
-    if data['req']:
-        if data['req'] == 'gethostbyname':
-            if not data['args']:
-                return 'None'
-            host = data['args']
-            result = host.replace('http://', '').replace('https://', '')
-            cut_link = result.find('/')
-            result = result[:cut_link] if cut_link != -1 else result
-            req = gethostbyname(result)
-            return req
+
+    if not data['req']:
+        return 'None'
+
+    if data['req'] == 'host':
+        if not data['args']:
+            return 'None'
+        domain = data['args']
+        get_ip = processing.hostbyname(domain)
+        return get_ip
+
+    if data['req'] == 'weather':
+        if not data['args']:
+            return 'None'
+        city = data['args']
+        get_weather = processing.getWeather(city)
+        return get_weather
+    
+    return "None"
