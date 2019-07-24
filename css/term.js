@@ -170,7 +170,7 @@ function hostname() {
 }
 
 function listDirectory() {
-    directories = "..";
+    let directories = "..";
     hierarchy.forEach(function(item) {
         if(item.current && !item.filedata) { item.command = "." }
         directories += '	' + item.command;
@@ -180,7 +180,7 @@ function listDirectory() {
 
 function changeDirectory(new_dir) {
     if(!new_dir) { new_dir = "." }
-    msg = undefined;
+    let msg = undefined;
     new_dir = new_dir.replace('~', `/home/${user}/`)
     hierarchy.forEach(function(item) {
         if(new_dir == item.name) {
@@ -189,12 +189,12 @@ function changeDirectory(new_dir) {
                 return msg;
             }
         }
-        if(new_dir == ".") {
+        else if (new_dir == ".") {
             msg = " ";
             return msg;
         }
-        if(new_dir == "..") {
-            path = ""
+        else if (new_dir == "..") {
+            let path = ""
             hierarchy.forEach(function(item) {
                 if(item.current) {
                     if(item.parent) {
@@ -238,9 +238,9 @@ function cat(file) {
 }
 
 function evaluate(value, callback) {
-    result = undefined;
+    let result = undefined;
     value = value.split(" ");
-    counter = 0;
+    let counter = 0;
     commands.forEach(function(item) {
         if(item.command == value[0]) {
             if(item.command == "host") {
@@ -264,6 +264,9 @@ function getKeyPress(element) {
         let val = element.value;
         if(shell_history.length <= 25 && val) {
             shell_history.push(val);
+        } else {
+            shell_history.shift();
+            shell_history.push(val);
         }
         let history = document.createElement("p");
         history.innerHTML = val;
@@ -279,6 +282,7 @@ function getKeyPress(element) {
                     output.innerHTML = response;
                     output.setAttribute("class", "inline-output");
                     val = undefined;
+                    window.scrollTo(0,document.body.scrollHeight);
                 }                 
             });
         }
