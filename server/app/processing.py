@@ -1,12 +1,12 @@
 from app import module_config
 from socket import gethostbyname, gaierror
-import pyowm
-import re
+from PIL import Image
+import pyowm, re, binascii
 
 # use some functionality from awful-bot
 CLEARASCII = [r"     \   /     ",
               r"      .-.      ",
-              r"   ― (   ) ―   ",
+              r"  ― (   ) ―   ",
               r"      '-’      ",
               r"     /   \     "]
 CLOUDASCII = [r"    \  /       ",
@@ -58,3 +58,62 @@ def getWeather(city):
             f"{replyascii[4]} ◒ SUNSET: {sunset}")
     else:
         return("No city was set!")
+
+def decode(path):
+    """
+    Decodes image with encoded LSB.
+    image = PIL.Image. Is splitted into channels, red channel is used for decodeion.
+    Reads until delimiter after the user message.
+    """
+    image = Image.open(path)
+    red_channel, green_channel, blue_channel, *alpha = image.convert('RGB').split()
+    x, y = image.size[0], image.size[1]  
+
+    text = ''
+    delim = '001011110010110100101111'
+
+    for x_pixel in range(x):
+        for y_pixel in range(y):
+            bin_im_pixel = bin(red_channel.getpixel((x_pixel, y_pixel)))
+            text += bin_im_pixel[-1]
+            if len(text) > len(delim):
+                if delim in text[-24:]:
+                    text = text[:-24]
+                    return (int(text, 2).to_bytes((len(text) + 7) // 8, 'big')).decode()
+    
+    return (int(text, 2).to_bytes((len(text) + 7) // 8, 'big')).decode()
+
+
+def encode(text, path):
+    """
+    Encodes message to binary and changes image's least significant bit.
+    text = message to encode. 
+    image = PIL.Image. Is splitted into channels, red channel is used for encryption.
+    Pushes delimiter after the user message.
+    """
+    image = Image.open(path)
+    fname, ext = path.rsplit('.', 1)
+    red_channel, green_channel, blue_channel, *alpha = image.split()
+    x, y = image.size[0], image.size[1]
+
+    counter = 0
+    delim = '001011110010110100101111'
+    bin_text = bin(int(binascii.hexlify(text.encode()),16))[2:]
+
+    for x_cord in range(x):
+        for y_cord in range(y):
+            if counter >= len(bin_text):
+                if bin_text == delim:
+                    if alpha:
+                        result = Image.merge("RGBA", [red_channel, green_channel, blue_channel, alpha[0]])
+                    else:
+                        result = Image.merge("RGB", [red_channel, green_channel, blue_channel])
+                    result.save(path, ext)
+                    return "success"
+                counter = 0
+                bin_text = delim
+            bin_im_pixel = bin(red_channel.getpixel((x_cord, y_cord)))
+            bin_im_pixel = bin_im_pixel[:-1] + '1' if bin_text[counter] == '1' else bin_im_pixel[:-1] + '0'
+
+            red_channel.putpixel((x_cord, y_cord), int(bin_im_pixel, base=2))
+            counter+=1

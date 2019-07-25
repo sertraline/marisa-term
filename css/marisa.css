@@ -17,6 +17,7 @@ html {
 
 html {
     font-family: Nouveau_IBM;
+    font-size: 16px;
     background-color: #000;
     background-attachment: fixed;
     position: relative;
@@ -48,7 +49,7 @@ body {
 
 p {
     width: 90%;
-    white-space: pre;
+    white-space: pre-wrap;
     color: white;
     margin: 0;
     padding-left: 20px;
@@ -67,8 +68,7 @@ p.inline {
     width: auto;
     white-space: pre-line;
     word-break: break-all;
-    padding-left: 12px;
-    padding-top: 1px;
+    padding-left: 9px;
 }
 
 p.inline-output {
@@ -84,10 +84,30 @@ p.inline-hidden {
 p.inline-pre {
     display: flex;
     width: auto;
-    white-space: pre-line;
+    white-space: pre-wrap;
     max-height: 24px;
     padding-right: 4px;
     color: #0082ff;
+}
+
+p.plain {
+    flex-basis: 100%;
+    word-break: break-word;
+    white-space: pre-wrap;
+    padding-left: 0px;
+}
+
+p#plain {
+    flex-basis: 100%;
+    word-break: break-word;
+    white-space: pre-wrap;
+    padding-left: 0px;
+    padding-top: 15px;
+}
+
+img.image-output {
+    max-width: 70%;
+    height: auto;
 }
 
 a {
@@ -112,19 +132,72 @@ a {
 }
 
 #shell {
+    border: none;
+    overflow: auto;
+    outline: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
     font-family: Nouveau_IBM;
+    font-size: inherit;
+
     display: flex;
     flex: 1;
     height: auto;
     overflow:hidden;
     min-height: 24px;
-    white-space: pre-line;
+    white-space: pre-wrap;
     word-break: break-all;
     background-color: #000;
     color: white;
     border: 0;
     resize: none;
-    padding-left: 12px;
+
+    padding-top: 0;
+    padding-left: 9px;
+    padding-bottom: 5px;
+    margin: 0;
+}
+
+#interrupt {
+    padding-left: 20px;
+}
+
+.btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+  
+.btn {
+    border: 2px solid #0082ff;
+    color: white;
+    font-family: Nouveau_IBM;
+    background-color: black;
+    padding: 8px 12px;
+}
+
+.btn-wrapper:hover > .btn {
+    background-color: #0082ff;
+}
+
+.btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
+.btn-wrapper input[type=submit] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
 }
 
 .file {

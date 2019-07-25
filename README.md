@@ -51,10 +51,12 @@ marisa-term
 | <kbd>hextorgb</kbd>                                                | converts hex code to rgb: `hextorgb #00000` -> `rgb(0, 0, 0)`          |
 | <kbd>host</kbd>                                                    | returns ip of specified domain. Simulates linux `host` command from `dnsutils`.                 |
 | <kbd>weather</kbd>                                                 | returns weather for specified city.|
-| <kbd>help</kbd>                                                    | prints help                        |
+| <kbd>encode</kbd>                                                  | encodes image red channel's Least Significant Bit and returns it. |
+| <kbd>decode</kbd>                                                  | decodes image red channel's LSB and returns hidden message. |
+| <kbd>help</kbd>                                                    | prints help. `help [command]` gives more detailed help about the command provided.                        |
 
 ## Requisites  
-`python3 -m pip install --user flask pyowm`  
+`python3 -m pip install --user flask pyowm Pillow`  
 
 Install gunicorn:  
 `sudo apt install gunicorn3`  

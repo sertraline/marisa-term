@@ -5,56 +5,102 @@ let commands = [
     {
         "name": "list directories",
         "command": "ls",
+        "help": `lists directories.\nusage: ls`,
         "exec": listDirectory
     },
     {
         "name": "change directory",
         "command": "cd",
+        "help": `changes directory.\nusage: cd .\ncd ..\ncd ~/`,
         "exec": changeDirectory
     },
     {
         "name": "concatenate",
         "command": "cat",
+        "help": `outputs text file.\nusage: cat [file]\ncat links`,
         "exec": cat
     },
     {
         "name": "whoami",
         "command": "whoami",
+        "help": `displays current user.\nusage: whoami`,
         "exec": whoami
     },
     {
         "name": "groups",
         "command": "groups",
+        "help": `displays list of groups.\nusage: groups`,
         "exec": groups
     },
     {
         "name": "hostname",
         "command": "hostname",
+        "help": `displays hostname.\nusage: hostname`,
         "exec": hostname
     },
     {
         "name": "hex code -> rgb",
         "command": "hextorgb",
+        "help": `converts hex code to RGB value.\nusage: hextorgb [hex code]\nhextorgb #00000`,
         "exec": hextorgb
     },
     {
         "name": "get host by name",
         "command": "host",
+        "help": `returns ip of specified domain.\nusage: host [domain]\nhost google.com`,
         "callback": true,
         "exec": host
     },
     {
         "name": "get weather",
         "command": "weather",
+        "help": `returns weather for specified city.\nusage: weather [city]\nweather Luhansk`,
         "callback": true,
         "exec": weather
     },
     {
+        "name": "encode image",
+        "command": "encode",
+        "help": `encodes specified image red channel's Least Significant Bit with your message.
+usage: encode [message]\nencode watashi wa coolhacker desu.`,
+        "callback": true,
+        "exec": encode
+    },
+    {
+        "name": "decode image",
+        "command": "decode",
+        "help": `decodes specified image red channel's Least Significant Bit and returns hidden message.
+usage: decode`,
+        "callback": true,
+        "exec": decode
+    },
+    {
         "name": "show help",
         "command": "help",
+        "help": "shows help. Unexpected, huh?",
         "exec": help
     }
 ]
+
+function help(params) {
+    let msg = ""
+    if(params.slice(1).length == 0) {
+        commands.forEach(function(item) {
+            msg += item.command + ': ' + item.name + '\n';
+        })
+        msg += "\nEsc: set/unset focus\n^L: clear terminal\n^C: cancel\nArrow up: navigate through history";
+        return msg;
+    } else {
+        let command = params[1];
+        commands.forEach(function(item) {
+            if(item.command == command) {
+                msg = item.help;
+                return msg;
+            }
+        })
+    }
+    return msg;
+}
 
 const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -95,31 +141,106 @@ async function greeting() {
     return new String("done")
 }
 
-
-function help() {
-    let msg = ""
-    commands.forEach(function(item) {
-        msg += item.command + ': ' + item.name + '\n';
-    })
-    msg += "\nEsc: set/unset focus\nCtrl+L: clear terminal\nArrow up: navigate through history";
-    return msg;
-}
-
 function apiCall(params, callback) {
     // params = {
     // "req": command,
     // "args": args }
     let xhr = new XMLHttpRequest();
     xhr.open('POST', '/api', true);
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    xhr.onload = function () {
+    xhr.onload = function() {
         callback(xhr.responseText);
     };
-    payload = ""
+    let data = new FormData();
     Object.keys(params).forEach(function(key) {
-        payload += key + '=' + params[key] + '&';
+        data.append(key, params[key]);
     })
-    xhr.send(payload);
+    xhr.send(data);
+}
+
+function encode(args) {
+    interrupt(args);
+}
+
+function decode(args) {
+    interrupt(args);
+}
+
+function getSubmit(params, event) {
+    // gets submit event, extracts values, makes apiCall
+    event.preventDefault();
+    let output = document.getElementById('plain');
+    let type = params[0];
+    let form = document.getElementById(type);
+    let tg = form.getElementsByTagName('input');
+    file = tg[0].files[0];
+
+    if(type === 'encode') { params = params.slice(1).join(' ') }
+    if(!params) { output.innerHTML = "Your message is empty. Usage: encode [your message]" }
+
+    if(file) {
+        response = apiCall({ req: `${type}`, args: params, file: file }, async function(response) {
+            output.innerHTML = response;
+            await sleep(200);
+            window.scrollTo(0,document.body.scrollHeight);
+        })
+    }
+}
+
+function interrupt(args) {
+    // creates a <div> that contains upload form with type given
+    // e.g 'encode'
+    let type = args[0];
+    // type = 'encode', 'decode', etc
+
+    let window = document.createElement("div");
+    window.setAttribute("id", "interrupt");
+
+    let screen = document.getElementById("screen");
+    screen.appendChild(window);
+    let header = document.createElement("p");
+    header.setAttribute("class", "plain");
+    header.innerHTML = "upload your file (^C to exit):";
+    let br = document.createElement("br");
+    let form = document.createElement("form");
+
+    form.setAttribute("id", type);
+
+    form.setAttribute("method", "post");
+    form.setAttribute("enctype", "multipart/form-data");
+    form.setAttribute("action", "#");
+
+    form.addEventListener('submit', getSubmit.bind(null, args));
+
+    let btn_wrapper = document.createElement("div");
+    btn_wrapper.setAttribute("class", "btn-wrapper");
+    let btn_upload_wrapper = document.createElement("div");
+    btn_upload_wrapper.setAttribute("class", "btn-wrapper");
+    let button = document.createElement("button");
+    button.innerHTML = "Browse";
+    let button_upload = document.createElement("button");
+    button_upload.innerHTML = "Upload";
+    button.setAttribute("class", "btn");
+    button_upload.setAttribute("class", "btn");
+    let input_o = document.createElement("input");
+    input_o.setAttribute("type", "file");
+    input_o.setAttribute("name", "file");
+    let input_t = document.createElement("input");
+    input_t.setAttribute("type", "submit");
+    input_t.setAttribute("value", "Upload");
+    btn_wrapper.appendChild(button);
+    btn_wrapper.appendChild(input_o);
+    btn_upload_wrapper.appendChild(button_upload);
+    btn_upload_wrapper.appendChild(input_t)
+    form.appendChild(btn_wrapper);
+    form.appendChild(btn_upload_wrapper);
+
+    window.appendChild(header);
+    window.appendChild(br);
+    window.appendChild(form);
+    
+    let output = document.createElement("p");
+    output.setAttribute("id", "plain");
+    window.appendChild(output);
 }
 
 function weather(args, callback) {
@@ -244,15 +365,24 @@ function changeDirectory(args) {
 
 function cat(args) {
     let file = args[1];
-    if(!file) { msg = "cat: cat. Cat?"}
+    if(!file) { return "cat: cat. Cat?"} else if(file === '.' || file === '..' || file === '~/') {
+        return `cat: ${file}: is a directory.`
+    }
+    let counter = 0;
     hierarchy.forEach(function(item) {
         if(file == item.name) {
             if(item.filedata) {
                 msg = item.filedata;
                 return msg;
+            } else {
+                msg = `cat: ${file}: is a directory.`;
+                return msg;
             }
+        } else {
+            counter++;
         }
     })
+    if(Object.keys(hierarchy).length == counter) { console.log("a"); return `${file}: No such file or directory (os error 2)`; }
     return msg;
 }
 
@@ -281,12 +411,6 @@ function getKeyPress(element) {
     if(event.key === 'Enter') {
         event.preventDefault();
         let val = element.value;
-        if(shell_history.length <= 25 && val) {
-            shell_history.push(val);
-        } else {
-            shell_history.shift();
-            shell_history.push(val);
-        }
         let history = document.createElement("p");
         history.innerHTML = val;
         history.setAttribute("class", "inline");
@@ -296,6 +420,13 @@ function getKeyPress(element) {
         output.setAttribute("class", "inline-hidden");
 
         if(val) {
+            if(shell_history.length <= 25 && val) {
+                shell_history.push(val);
+            } else {
+                shell_history.shift();
+                shell_history.push(val);
+            }
+
             exec = evaluate(val, async function(response) {
                 if(response.trim()) {
                     output.innerHTML = response;
@@ -303,10 +434,9 @@ function getKeyPress(element) {
                     val = undefined;
                     window.scrollTo(0,document.body.scrollHeight);
                 }
-                getPrompt();
-                window.scrollTo(0,document.body.scrollHeight);         
+                getPrompt();         
             });
-        }
+        } else { getPrompt(); }
 
         element.parentNode.appendChild(output);
         element.outerHTML = "";   
@@ -346,6 +476,7 @@ function getPrompt(prompt_message) {
     container.appendChild(inp);
     screen.appendChild(container);
     inp.focus();
+    window.scrollTo(0,document.body.scrollHeight);
 }
 
 document.addEventListener("keydown", globalHotkeys, false);
@@ -375,20 +506,37 @@ function globalHotkeys(event) {
         event.preventDefault(); 
     }
     if(event.ctrlKey && event.keyCode == 67) {
-        // enter
-        let val = document.getElementById("shell");
-        let container = val.parentElement;
+        // ctrl+c
+        try {
+            let val = document.getElementById("shell");
+            let container = val.parentElement;
 
-        let history = document.createElement("p");
-        history.innerHTML = val.value;
-        history.setAttribute("class", "inline");
-        container.appendChild(history);
+            let history = document.createElement("p");
+            history.innerHTML = val.value;
+            history.setAttribute("class", "inline");
+            container.appendChild(history);
 
-        document.getElementById("shell").outerHTML = "";
-        getPrompt();
+            document.getElementById("shell").outerHTML = "";
+            getPrompt();
+        }
+        catch(TypeError) {
+            // val is null == interrupt is present
+            let form = document.getElementById("interrupt");
+            let container = form.parentElement;
+            form.outerHTML = "";
+
+            let history = document.createElement("p");
+            history.innerHTML = `^C`;
+            history.setAttribute("class", "inline-output");
+            container.appendChild(history);
+
+            getPrompt();
+        }
         event.preventDefault(); 
     }
 }
+
+
 
 document.addEventListener('DOMContentLoaded', async function() {
     promise_finish = greeting().then(function() {
