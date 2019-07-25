@@ -6,6 +6,8 @@ This is javascript based fake terminal emulator with Flask backend.
 
 ![screenshot](marisa.png)
 
+![preview](https://i.imgur.com/M8aEjji.jpg)
+
 ## Structure  
 `raw.js` - contains 'raw' text data and several variables to use in `term.js`.  
 `term.js` - emulator itself. All functions are defined within its body. For everything that can't be done with javascript it makes a POST request to backend server.  
