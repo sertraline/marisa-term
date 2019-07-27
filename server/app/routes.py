@@ -15,6 +15,11 @@ def random_fname(filename):
     fname = str(base64.b64encode(bytes(fname, 'utf-8')))[1:30].strip("'").strip("=") + '.' + ext
     return fname
 
+PROHIBIT_IMG_ERROR = (
+    f"<span class='hg-fail'>error:</span> this file extension is prohibited. "
+    f"Only {', '.join(app.config['IMG_EXT'])} are allowed.")
+FAIL = "<span class='hg-fail'>None</span>"
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -24,55 +29,78 @@ def index():
 def api():
     data = request.form
     if not data['req']:
-        return 'None'
-
+        return FAIL
+    
     if data['req'] == 'encode' and 'file' in request.files:
-        myfile = request.files['file']
-        if myfile.filename == '':
-            return 'None'
+        userfile = request.files['file']
+        if userfile.filename == '':
+            return FAIL
         if not data['args']:
-            return 'Your message is empty. Usage: encode [your message]'
-        if not allowed_file(myfile.filename, 'img'):
-            return f"This file extension is prohibited. Only {app.config['IMG_EXT']} are allowed."
-        if myfile and allowed_file(myfile.filename, 'img'):
-            fname = random_fname(myfile.filename)
-            myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
-            encode = processing.encode(data['args'], os.path.join(app.config['UPLOAD_FOLDER'], fname))
-            if encode:
+            return "<span class='hg-fail'>error:</span> your message is empty. Usage: encode [your message]"
+        if not allowed_file(userfile.filename, 'img'):
+            return PROHIBIT_IMG_ERROR
+        if userfile and allowed_file(userfile.filename, 'img'):
+            fname = random_fname(userfile.filename)
+            result = processing.encode(userfile, fname, app.config['UPLOAD_FOLDER'], data['args'])
+            if result:
                 return(
                     f"""<p class="plain">"""
-                    f"""<img class="image-output" src='{app.config['UPLOAD_URL']}{fname}'\></p>"""
+                    f"""<img class="image-output" src='{app.config['UPLOAD_URL']}{result}'\></p>"""
                     f"""<p class="plain">Plain link:</p>"""
-                    f"""<p class="plain"><a href="{app.config['UPLOAD_URL']}{fname}">{app.config['UPLOAD_URL']}{fname}</a></p>""")
+                    f"""<p class="plain"><a href="{app.config['UPLOAD_URL']}{result}">{app.config['UPLOAD_URL']}{result}</a></p>""")
 
     if data['req'] == 'decode' and 'file' in request.files:
-        myfile = request.files['file']
-        if myfile.filename == '':
-            return 'None'
-        if not allowed_file(myfile.filename, 'img'):
-            return f"This file extension is prohibited. Only {app.config['IMG_EXT']} are allowed."
-        if myfile and allowed_file(myfile.filename, 'img'):
-            fname = random_fname(myfile.filename)
-            myfile.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
-            decode = processing.decode(os.path.join(app.config['UPLOAD_FOLDER'], fname))
-            if decode:
+        userfile = request.files['file']
+        if userfile.filename == '':
+            return FAIL
+        if not allowed_file(userfile.filename, 'img'):
+            return PROHIBIT_IMG_ERROR
+        if userfile and allowed_file(userfile.filename, 'img'):
+            fname = random_fname(userfile.filename)
+            decoded = processing.decode(userfile)
+            if decoded:
                 return(
                     f"""<p class="plain">"""
                     f"""<p class="plain">Decoded message:</p>"""
-                    f"""<p class="plain">{decode}</p>""")
+                    f"""<p class="plain">{decoded}</p>""")
+
+    if data['req'] == 'imgconvert' and 'file' in request.files:
+        userfile = request.files['file']
+        if not data['args']:
+            return (
+            f"<span class='hg-fail'>you haven't specified format to convert your image to.\n"
+            f"usage: imgconvert [{app.config['IMG_EXT'].join('|')}]</span>")
+        if not allowed_file(userfile.filename, 'img') or data['args'] not in app.config['IMG_EXT']:
+            return PROHIBIT_IMG_ERROR
+        if userfile.filename == '':
+            return FAIL
+        if userfile and allowed_file(userfile.filename, 'img'):
+            fname = random_fname(userfile.filename)
+            result = processing.imgconvert(userfile, fname, app.config['UPLOAD_FOLDER'], data['args'])
+            if isinstance(result, list):
+                return(
+                    f"""<p class="plain">{result[1]}</p>"""
+                )
+            elif result:
+                return(
+                    f"""<p class="plain">"""
+                    f"""<img class="image-output" src='{app.config['UPLOAD_URL']}{result}'\></p>"""
+                    f"""<p class="plain">Plain link:</p>"""
+                    f"""<p class="plain"><a href="{app.config['UPLOAD_URL']}{result}">{app.config['UPLOAD_URL']}{result}</a></p>""")
+        
 
     if data['req'] == 'host':
         if not data['args']:
-            return 'None'
+            return FAIL
         domain = data['args']
         get_ip = processing.hostbyname(domain)
         return get_ip
 
     if data['req'] == 'weather':
         if not data['args']:
-            return 'None'
+            return FAIL
         city = data['args']
         get_weather = processing.getWeather(city)
         return get_weather
     
-    return "None"
+    return FAIL

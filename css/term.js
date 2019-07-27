@@ -1,5 +1,6 @@
+import * as Raw from '/css/raw.js';
 
-shell_history = []
+var shell_history = []
 
 let commands = [
     {
@@ -62,7 +63,7 @@ let commands = [
         "name": "encode image",
         "command": "encode",
         "help": `encodes specified image red channel's Least Significant Bit with your message.
-usage: encode [message]\nencode watashi wa coolhacker desu.`,
+usage: encode [message]\nmessage desu.`,
         "callback": true,
         "exec": encode
     },
@@ -75,7 +76,15 @@ usage: decode`,
         "exec": decode
     },
     {
-        "name": "show help",
+        "name": "convert image",
+        "command": "imgconvert",
+        "help": `converts image to specified format.\nusage: imgconvert [format to convert]
+Formats supported: png, jpg, jpeg, webp, gif`,
+        "callback": true,
+        "exec": imgconvert
+    },
+    {
+        "name": "type help [command] to get detailed command usage.",
         "command": "help",
         "help": "shows help. Unexpected, huh?",
         "exec": help
@@ -125,15 +134,15 @@ async function greeting() {
 
     // iterate through boot sequence list with random delays
     if(getCookie('boot') != 'true') {
-        for (let i=0; i<boot_sequence.length; i++) {
+        for (let i=0; i<Raw.boot_sequence.length; i++) {
             await sleep(Math.floor(Math.random() * 40));
-            par.innerHTML += boot_sequence[i] + '\n';
+            par.innerHTML += Raw.boot_sequence[i] + '\n';
             window.scrollTo(0,document.body.scrollHeight);
         }
     await sleep(1220);
     }
     // message = actual greeting message
-    par.innerHTML += message;
+    par.innerHTML += Raw.message;
     par.innerHTML += '<p class="image">'+'</p>';
     window.scrollTo(0,document.body.scrollHeight);
 
@@ -157,8 +166,25 @@ function apiCall(params, callback) {
     xhr.send(data);
 }
 
+function imgconvert(args) {
+    let format = args[1];
+    let extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif'];
+    if(!format) { 
+        display_error(`you haven't specified format to convert your image to.\nusage: imgconvert [${extensions.join('|')}]`); 
+    } else if (!extensions.includes(format)) {
+        display_error(`looks like extension you provided is invalid. Available formats: ${extensions}`);
+    } else {
+        interrupt(args);
+    }
+    
+}
+
 function encode(args) {
-    interrupt(args);
+    if(args.slice(1).length == 0 || !args.slice(1).join(' ').trim()) {
+        display_error("your message is empty.\nusage: encode [your message]");
+    } else {
+        interrupt(args);
+    }  
 }
 
 function decode(args) {
@@ -170,15 +196,16 @@ function getSubmit(params, event) {
     event.preventDefault();
     let output = document.getElementById('plain');
     let type = params[0];
+    params = params.slice(1);
     let form = document.getElementById(type);
     let tg = form.getElementsByTagName('input');
-    file = tg[0].files[0];
+    let file = tg[0].files[0];
 
-    if(type === 'encode') { params = params.slice(1).join(' ') }
-    if(!params) { output.innerHTML = "Your message is empty. Usage: encode [your message]" }
+    if(type === 'encode') { params = params.join(' ') }
+    if(!params) { output.innerHTML = "<span class='hg-fail'>error:</span> your message is empty.\nusage: encode [your message]" }
 
     if(file) {
-        response = apiCall({ req: `${type}`, args: params, file: file }, async function(response) {
+        apiCall({ req: `${type}`, args: params, file: file }, async function(response) {
             output.innerHTML = response;
             await sleep(200);
             window.scrollTo(0,document.body.scrollHeight);
@@ -247,7 +274,7 @@ function weather(args, callback) {
     let city = args.slice(1).join(' ');
     if(!city) { callback("weather: please, specify your city.")}
     else {
-        response = apiCall({ req: "weather", args: city }, function(response) {
+        apiCall({ req: "weather", args: city }, function(response) {
             callback(response);
         });
     }
@@ -257,7 +284,7 @@ function host(args, callback) {
     let website = args[1];
     if(!website) { callback("host: please, specify a website.") }
     else {
-        response = apiCall({ req: "host", args: website }, function(response) {
+        apiCall({ req: "host", args: website }, function(response) {
             callback(response);
         });
     }
@@ -287,14 +314,14 @@ function hextorgb(args) {
 }
 
 function whoami() {
-    return user;
+    return Raw.user;
 }
 
 function groups(args) {
     let user = args[1];
-    if(!user) { return groupsls.join(' ') }
+    if(!user) { return Raw.groupsls.join(' ') }
     let msg = "";
-    groupsls.forEach(function(item) {
+    Raw.groupsls.forEach(function(item) {
         if(item == user) {
             msg = item;
             return msg;
@@ -304,12 +331,12 @@ function groups(args) {
 }
 
 function hostname() {
-    return user_hostname;
+    return Raw.user_hostname;
 }
 
 function listDirectory() {
     let directories = "..";
-    hierarchy.forEach(function(item) {
+    Raw.hierarchy.forEach(function(item) {
         if(item.current && !item.filedata) { item.command = "." }
         directories += '	' + item.command;
     })
@@ -319,9 +346,9 @@ function listDirectory() {
 function changeDirectory(args) {
     let new_dir = args[1];
     if(!new_dir) { new_dir = "." }
-    let msg = undefined;
-    new_dir = new_dir.replace('~', `/home/${user}/`)
-    hierarchy.forEach(function(item) {
+    let msg = "";
+    new_dir = new_dir.replace('~', `/home/${Raw.user}/`)
+    Raw.hierarchy.forEach(function(item) {
         if(new_dir == item.name) {
             if(item.filedata) {
                 msg = `cd: not a directory: ${new_dir}`;
@@ -334,7 +361,7 @@ function changeDirectory(args) {
         }
         else if(new_dir == "..") {
             let path = ""
-            hierarchy.forEach(function(item) {
+            Raw.hierarchy.forEach(function(item) {
                 if(item.current) {
                     if(item.parent) {
                         path = item.parent;
@@ -349,10 +376,10 @@ function changeDirectory(args) {
         msg = " ";
     })
     if (!msg) {
-        hierarchy.forEach(function(item) {
+        Raw.hierarchy.forEach(function(item) {
             item.current = false;
         })
-        hierarchy.forEach(function(item) {
+        Raw.hierarchy.forEach(function(item) {
             if(new_dir == item.name) {
                 item.current = true;
                 return item;
@@ -366,10 +393,11 @@ function changeDirectory(args) {
 function cat(args) {
     let file = args[1];
     if(!file) { return "cat: cat. Cat?"} else if(file === '.' || file === '..' || file === '~/') {
-        return `cat: ${file}: is a directory.`
+        return `cat: ${file}: is a directory.`;
     }
     let counter = 0;
-    hierarchy.forEach(function(item) {
+    let msg = "";
+    Raw.hierarchy.forEach(function(item) {
         if(file == item.name) {
             if(item.filedata) {
                 msg = item.filedata;
@@ -382,22 +410,22 @@ function cat(args) {
             counter++;
         }
     })
-    if(Object.keys(hierarchy).length == counter) { console.log("a"); return `${file}: No such file or directory (os error 2)`; }
+    if(Object.keys(Raw.hierarchy).length == counter) { return `${file}: No such file or directory (os error 2)`; }
     return msg;
 }
 
 function evaluate(value, callback) {
     let result = undefined;
-    values = value.split(" ");
+    let values = value.split(" ");
     let counter = 0;
     commands.forEach(function(item) {
         if(item.command == values[0]) {
             if(item.callback) {
-                response = item.exec(values, function(response) {
+                item.exec(values, function(response) {
                     callback(response);
                 })
             } else {
-                response = item.exec(values);
+                let response = item.exec(values);
                 callback(response);
             }
         } else {
@@ -407,7 +435,7 @@ function evaluate(value, callback) {
     if(Object.keys(commands).length == counter) { callback(`marisa-term: command not found: ${value}`)}
 }
 
-function getKeyPress(element) {
+function get_key_press(element, event) {
     if(event.key === 'Enter') {
         event.preventDefault();
         let val = element.value;
@@ -427,16 +455,16 @@ function getKeyPress(element) {
                 shell_history.push(val);
             }
 
-            exec = evaluate(val, async function(response) {
+            evaluate(val, async function(response) {
                 if(response.trim()) {
                     output.innerHTML = response;
                     output.setAttribute("class", "inline-output");
                     val = undefined;
                     window.scrollTo(0,document.body.scrollHeight);
                 }
-                getPrompt();         
+                get_prompt();         
             });
-        } else { getPrompt(); }
+        } else { get_prompt(); }
 
         element.parentNode.appendChild(output);
         element.outerHTML = "";   
@@ -445,13 +473,17 @@ function getKeyPress(element) {
     }
 }
 
-function autoGrow(element) {
-    element.style.height = "5px";
-    element.style.height = (element.scrollHeight)+"px";
+function display_error(message) {
+    let history = document.createElement("p");
+    history.innerHTML = `<span class='hg-fail'>error:</span> ${message}</span>`;
+    history.setAttribute("class", "inline-output");
+    let screen = document.getElementById("screen");
+    screen.appendChild(history);  
+    get_prompt();
 }
 
-function getPrompt(prompt_message) {
-    hierarchy.forEach(function(item) {
+function get_prompt(prompt_message) {
+    Raw.hierarchy.forEach(function(item) {
         if(item.current == true) {
             prompt_message = `[${item.name.replace(`/home/anon/`, "~")}] 良い `;
         }
@@ -467,8 +499,13 @@ function getPrompt(prompt_message) {
     inp.setAttribute("type", "text");
     inp.setAttribute("id", "shell");
     inp.setAttribute("rows", 1);
-    inp.setAttribute("onkeydown", "getKeyPress(this)");
-    inp.setAttribute("oninput", "autoGrow(this)");
+    inp.addEventListener("keydown", function(event) {
+        get_key_press(this, event);
+    });
+    inp.addEventListener("oninput", event => {
+        this.style.height = "5px";
+        this.style.height = (element.scrollHeight)+"px";
+    });
 
     let screen = document.getElementById("screen");
 
@@ -479,9 +516,9 @@ function getPrompt(prompt_message) {
     window.scrollTo(0,document.body.scrollHeight);
 }
 
-document.addEventListener("keydown", globalHotkeys, false);
+document.addEventListener("keydown", global_hotkeys, false);
 
-function globalHotkeys(event) {
+function global_hotkeys(event) {
     if(event.keyCode == 27) {
         // esc
         let inp = document.getElementById("shell");
@@ -492,12 +529,12 @@ function globalHotkeys(event) {
         let screen = document.getElementById("screen");
         screen.innerHTML = "";
         greeting();
-        getPrompt();
+        get_prompt();
         event.preventDefault(); 
     }
     if(event.keyCode == 38) {
         // arrow up
-        value = shell_history[shell_history.length - 1]
+        let value = shell_history[shell_history.length - 1]
         if(value) {
             document.getElementById("shell").value = value;
         }
@@ -517,7 +554,7 @@ function globalHotkeys(event) {
             container.appendChild(history);
 
             document.getElementById("shell").outerHTML = "";
-            getPrompt();
+            get_prompt();
         }
         catch(TypeError) {
             // val is null == interrupt is present
@@ -530,16 +567,14 @@ function globalHotkeys(event) {
             history.setAttribute("class", "inline-output");
             container.appendChild(history);
 
-            getPrompt();
+            get_prompt();
         }
         event.preventDefault(); 
     }
 }
 
-
-
 document.addEventListener('DOMContentLoaded', async function() {
-    promise_finish = greeting().then(function() {
-        getPrompt();
+    greeting().then(function() {
+        get_prompt();
     })
  }, false);

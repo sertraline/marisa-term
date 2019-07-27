@@ -32,9 +32,9 @@ def hostbyname(host):
         req = gethostbyname(result)
     except gaierror as err:
         print(err)
-        return 'None'
+        return "<span class='hg-fail'>error:</span> name or service not known."
     except:
-        return 'None'
+        return "<span class='hg-fail'>None</span>"
     return req
 
 def getWeather(city):
@@ -57,15 +57,32 @@ def getWeather(city):
             f"{replyascii[3]} ◓ SUNRISE: {sunrise}\n"
             f"{replyascii[4]} ◒ SUNSET: {sunset}")
     else:
-        return("No city was set!")
+        return("<span class='hg-fail'>error:</span> no city was set.")
 
-def decode(path):
-    """
-    Decodes image with encoded LSB.
-    image = PIL.Image. Is splitted into channels, red channel is used for decodeion.
-    Reads until delimiter after the user message.
-    """
-    image = Image.open(path)
+def imgconvert(file, filename, save_path, toformat):
+    filename, ext = filename.rsplit('.', 1)
+    ext = ext.lower()
+    if ext == toformat:
+        return [1, f"Your image is already {toformat}."]
+
+    image = Image.open(file)
+    filename = filename + '.' + toformat
+
+    if toformat in ('jpg', 'jpeg'):
+        r_im = image.convert('RGB')
+        r_im.save(save_path+filename, 'JPEG')
+    elif toformat == 'png':
+        image.save(save_path+filename, 'PNG')
+    elif toformat == 'webp':
+        image.save(save_path+filename, 'WEBP')
+    elif toformat == 'gif':
+        image.save(save_path+filename, 'GIF')
+    else:
+        return [1, "Format was not recognized."]
+    return filename
+
+def decode(file):
+    image = Image.open(file)
     red_channel, green_channel, blue_channel, *alpha = image.convert('RGB').split()
     x, y = image.size[0], image.size[1]  
 
@@ -80,21 +97,23 @@ def decode(path):
                 if delim in text[-24:]:
                     text = text[:-24]
                     return (int(text, 2).to_bytes((len(text) + 7) // 8, 'big')).decode()
-    
-    return (int(text, 2).to_bytes((len(text) + 7) // 8, 'big')).decode()
+    try:
+        return (int(text, 2).to_bytes((len(text) + 7) // 8, 'big')).decode()
+    except UnicodeDecodeError:
+        return "<span class='hg-fail'>error:</span> image is not encoded or is invalid."
 
 
-def encode(text, path):
-    """
-    Encodes message to binary and changes image's least significant bit.
-    text = message to encode. 
-    image = PIL.Image. Is splitted into channels, red channel is used for encryption.
-    Pushes delimiter after the user message.
-    """
-    image = Image.open(path)
-    fname, ext = path.rsplit('.', 1)
+def encode(file, filename, save_path, text):
+    image = Image.open(file)
     red_channel, green_channel, blue_channel, *alpha = image.split()
     x, y = image.size[0], image.size[1]
+
+    filename, ext = filename.rsplit('.', 1)
+    ext = ext.lower()
+    for i in ('jpg', 'jpeg'):
+        if i in ext:
+            ext = ext.replace(i, 'png')
+    filename = filename + '.' + ext
 
     counter = 0
     delim = '001011110010110100101111'
@@ -108,8 +127,8 @@ def encode(text, path):
                         result = Image.merge("RGBA", [red_channel, green_channel, blue_channel, alpha[0]])
                     else:
                         result = Image.merge("RGB", [red_channel, green_channel, blue_channel])
-                    result.save(path, ext)
-                    return "success"
+                    result.save(save_path+filename, 'PNG')
+                    return filename
                 counter = 0
                 bin_text = delim
             bin_im_pixel = bin(red_channel.getpixel((x_cord, y_cord)))

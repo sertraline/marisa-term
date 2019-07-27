@@ -1,7 +1,7 @@
 let today = new Date();
 let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+ today.getSeconds();
 
-let boot_sequence = `
+export var boot_sequence = `
 voltage set from 0x18 to 0x24, addr:0x36
 voltage set from 0x18 to 0x2c, addr:0x37
 voltage set from 0x38 to 0x48, addr:0x38
@@ -126,12 +126,12 @@ STARTING ASTERISK
 Asterisk Started
 Starting REST applications daemon:                          <span class="hg-succ">[  OK  ]</span>`.split('\n');
 
-let message = `
+export var message = `
 Welcome to marisa-term!
-marisa-term 0.05 ${date} (horizon) (tty1)
-type 'help' to get a list of available commands.\ntype 'help [command]' to get detailed command usage.\n`;
+marisa-term 0.06 ${date} (horizon) (tty1)
+type 'help' to get a list of available commands.`;
 
-let raw_links = `https://tsunagari.space/ `.split('\n');
+export var raw_links = `https://tsunagari.space`;
 
 function append_a(text) {
     let url_regex = /(https?:\/\/[^\s]+)/g;
@@ -140,21 +140,21 @@ function append_a(text) {
     })
 }
 
-let links = "";
+export var links = "";
 raw_links.forEach(function(item) {
     links += append_a(item) + '\n';
 })
 
-let user = "anon";
+export var user = "anon";
 
-let groupsls = [
+export var groupsls = [
     "anon",
     "aurora"
 ]
 
-let user_hostname = "horizon";
+export var user_hostname = "horizon";
 
-let hierarchy = [
+export var hierarchy = [
     {
         "name": `/home/${user}/`,
         "command": "~",
@@ -171,6 +171,5 @@ let hierarchy = [
     }
 ]
 
-let prompt = `[${hierarchy[0].name}] 良い `
-
+export var prompt = `[${hierarchy[0].name}] 良い `
 
