@@ -63,7 +63,7 @@ let commands = [
         "name": "encode image",
         "command": "encode",
         "help": `encodes specified image red channel's Least Significant Bit with your message.
-usage: encode [message]\nmessage desu.`,
+usage: encode [message]\nencode message desu.`,
         "callback": true,
         "exec": encode
     },
@@ -482,6 +482,11 @@ function display_error(message) {
     get_prompt();
 }
 
+function auto_grow(event) {
+    event.target.style.height = "5px";
+    event.target.style.height = (event.target.scrollHeight)+"px";
+}
+
 function get_prompt(prompt_message) {
     Raw.hierarchy.forEach(function(item) {
         if(item.current == true) {
@@ -502,10 +507,7 @@ function get_prompt(prompt_message) {
     inp.addEventListener("keydown", function(event) {
         get_key_press(this, event);
     });
-    inp.addEventListener("oninput", event => {
-        this.style.height = "5px";
-        this.style.height = (element.scrollHeight)+"px";
-    });
+    inp.addEventListener("input", event => { auto_grow(event); } );
 
     let screen = document.getElementById("screen");
 

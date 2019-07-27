@@ -131,7 +131,7 @@ Welcome to marisa-term!
 marisa-term 0.06 ${date} (horizon) (tty1)
 type 'help' to get a list of available commands.`;
 
-export var raw_links = `https://tsunagari.space`;
+export var raw_links = `https://tsunagari.space`.split('\n');
 
 function append_a(text) {
     let url_regex = /(https?:\/\/[^\s]+)/g;
