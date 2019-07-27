@@ -36,9 +36,9 @@ This is javascript based fake terminal emulator with Flask backend.
       /(___(__)   ◓ SUNRISE: 2019-07-27 12:34:28+00
                   ◒ SUNSET: 2019-07-28 06:08:42+00
   ```
-* <kbd>encode</kbd> - encodes image's red channel Least Significant Bit and returns link to the encoded image.
+* <kbd>encode</kbd> - encodes red channel's Least Significant Bits of specified image and returns link to the encoded image.
   * `encode [message]`
-* <kbd>decode</kbd> - decodes image's red channel LSB and returns hidden message.
+* <kbd>decode</kbd> - decodes red channel's LSB of specified image and returns hidden message.
 * <kbd>imgconvert</kbd> - converts picture to specified format.
   * `imgconvert [png|jpg|jpeg|webp|gif]`
 * <kbd>help</kbd> - prints help. 
