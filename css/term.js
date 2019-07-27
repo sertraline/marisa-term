@@ -6,79 +6,89 @@ let commands = [
     {
         "name": "list directories",
         "command": "ls",
-        "help": `lists directories.\nusage: ls`,
+        "help": `lists directories.\n\nusage:\nls`,
         "exec": listDirectory
     },
     {
         "name": "change directory",
         "command": "cd",
-        "help": `changes directory.\nusage: cd .\ncd ..\ncd ~/`,
+        "help": `changes directory.\n\nusage:\ncd .\ncd ..\ncd ~/`,
         "exec": changeDirectory
     },
     {
         "name": "concatenate",
         "command": "cat",
-        "help": `outputs text file.\nusage: cat [file]\ncat links`,
+        "help": `outputs text file.\n\nusage:\ncat [file]\ncat links`,
         "exec": cat
     },
     {
         "name": "whoami",
         "command": "whoami",
-        "help": `displays current user.\nusage: whoami`,
+        "help": `displays current user.\n\nusage:\nwhoami`,
         "exec": whoami
     },
     {
         "name": "groups",
         "command": "groups",
-        "help": `displays list of groups.\nusage: groups`,
+        "help": `displays list of groups.\n\nusage:\ngroups`,
         "exec": groups
     },
     {
         "name": "hostname",
         "command": "hostname",
-        "help": `displays hostname.\nusage: hostname`,
+        "help": `displays hostname.\n\nusage:\nhostname`,
         "exec": hostname
     },
     {
         "name": "hex code -> rgb",
         "command": "hextorgb",
-        "help": `converts hex code to RGB value.\nusage: hextorgb [hex code]\nhextorgb #00000`,
+        "help": `converts hex code to RGB value.\n\nusage:\nhextorgb [hex code]\nhextorgb #00000`,
         "exec": hextorgb
+    },
+    {
+        "name": "echo line",
+        "command": "echo",
+        "help": `echo - displays a line of text.\n\nusage:\necho [string]\n
+base64 encoding: echo [string] | base64
+base64 decoding: echo [string] | base64 -d\n
+rot13 encoding: echo [string] | rot13
+rot13 decoding: echo [string] | rot13 -d`,
+        "exec": echo
     },
     {
         "name": "get host by name",
         "command": "host",
-        "help": `returns ip of specified domain.\nusage: host [domain]\nhost google.com`,
+        "help": `returns ip of specified domain.\n\nusage:\nhost [domain]\nhost google.com`,
         "callback": true,
         "exec": host
     },
     {
         "name": "get weather",
         "command": "weather",
-        "help": `returns weather for specified city.\nusage: weather [city]\nweather Luhansk`,
+        "help": `returns weather for specified city.\n\nusage:\nweather [city]\nweather Luhansk`,
         "callback": true,
         "exec": weather
     },
     {
         "name": "encode image",
         "command": "encode",
-        "help": `encodes specified image red channel's Least Significant Bit with your message.
-usage: encode [message]\nencode message desu.`,
+        "help": `encodes specified image red channel's Least Significant Bit with your message.\n
+usage:\nencode [message]\nencode message desu.`,
         "callback": true,
         "exec": encode
     },
     {
         "name": "decode image",
         "command": "decode",
-        "help": `decodes specified image red channel's Least Significant Bit and returns hidden message.
-usage: decode`,
+        "help": `decodes specified image red channel's Least Significant Bit and returns hidden message.\n
+usage:\ndecode`,
         "callback": true,
         "exec": decode
     },
     {
         "name": "convert image",
         "command": "imgconvert",
-        "help": `converts image to specified format.\nusage: imgconvert [format to convert]
+        "help": `converts image to specified format.\nusage: imgconvert [format to convert]\n
 Formats supported: png, jpg, jpeg, webp, gif`,
         "callback": true,
         "exec": imgconvert
@@ -313,6 +323,54 @@ function hextorgb(args) {
     );
 }
 
+function echo(args) {
+    let index = args.length - 1;
+    let pipe = undefined;
+    let string = args.slice(1).join(' ');
+    let enc = undefined;
+    for(; index >= 0; index--) {
+        if(args[index] === 'base64') {
+            enc = 'base64';
+            pipe = args.slice(index-1);
+            string = args.slice(1, index-1).join(' ');
+        } else if(args[index] === 'rot13') {
+            enc = 'rot13';
+            pipe = args.slice(index-1);
+            string = args.slice(1, index-1).join(' ');
+        }
+
+    }
+    if(pipe && enc === 'base64') {
+        if(pipe.includes('-d')) {
+            return decodeURIComponent(atob(string).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+        else {
+            return btoa(encodeURIComponent(string).replace(/%([0-9A-F]{2})/g,
+                function toSolidBytes(match, p1) {
+                    return String.fromCharCode('0x' + p1);
+            }));
+        }
+    } else if(pipe && enc === 'rot13') {
+        let alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+        let beta = 'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklmМНОПРСТУФХЦЧШЩЪЫЬЭЮЯАБВГДЕЁЖЗИЙКЛмнопрстуфхцчшщъыьэюяабвгдеёжзийкл';
+        if(pipe.includes('-d')) {
+            // https://codereview.stackexchange.com/a/132140
+            var input = beta;
+            var output = alpha;
+        } else {
+            var input = alpha;
+            var output = beta;
+        }
+        let index = x => input.indexOf(x);
+        let translate = x => index(x) > -1 ? output[index(x)] : x;
+        return string.split('').map(translate).join('');
+    }
+    return string;
+
+}
+
 function whoami() {
     return Raw.user;
 }
@@ -508,7 +566,7 @@ function get_prompt(prompt_message) {
         get_key_press(this, event);
     });
     inp.addEventListener("input", event => { auto_grow(event); } );
-
+    
     let screen = document.getElementById("screen");
 
     container.appendChild(user);
