@@ -41,6 +41,8 @@ This is javascript based fake terminal emulator with Flask backend.
 * <kbd>decode</kbd> - decodes red channel's LSB of specified image and returns hidden message.
 * <kbd>imgconvert</kbd> - converts picture to specified format.
   * `imgconvert [png|jpg|jpeg|webp|gif]`
+* <kbd>htmltopdf</kbd> - converts html webpage to pdf file.
+  * `htmltopdf [website]`
 * <kbd>help</kbd> - prints help. 
   * `help [command]` gives more detailed help about the command provided.  
 
@@ -78,7 +80,7 @@ marisa-term
 ```  
 
 ## Requisites  
-`python3 -m pip install --user flask pyowm Pillow`  
+`python3 -m pip install --user flask pyowm Pillow weasyprint`  
 
 Install gunicorn:  
 `sudo apt install gunicorn3`  

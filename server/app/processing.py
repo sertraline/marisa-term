@@ -2,6 +2,7 @@ from app import module_config
 from socket import gethostbyname, gaierror
 from PIL import Image
 import pyowm, re, binascii
+import weasyprint
 
 # use some functionality from awful-bot
 CLEARASCII = [r"     \   /     ",
@@ -22,6 +23,8 @@ OTHERASCII = [r"      .-.      ",
 
 def hostbyname(host):
     try:
+        if any(item in host for item in ('192.192.', '192.168.', '127.0.', 'localhost', '0.')):
+            raise TypeError
         result = host.replace('http://', '').replace('https://', '').replace('ftp://', '')
         cut_link = result.find('/')
         result = result[:cut_link] if cut_link != -1 else result
@@ -30,8 +33,7 @@ def hostbyname(host):
         regx = re.compile(r'[^\d\w\.\:\/]')
         result = regx.sub('', result)
         req = gethostbyname(result)
-    except gaierror as err:
-        print(err)
+    except (TypeError, gaierror) as err:
         return "<span class='hg-fail'>error:</span> name or service not known."
     except:
         return "<span class='hg-fail'>None</span>"
@@ -136,3 +138,14 @@ def encode(file, filename, save_path, text):
 
             red_channel.putpixel((x_cord, y_cord), int(bin_im_pixel, base=2))
             counter+=1
+
+def htmltopdf(filename, save_path, website):
+    if not website.startswith('http://') and not website.startswith('https://'):
+        website = 'http://'+website
+    try:
+        if any(item in website for item in ('192.192.', '192.168.', '127.0.', 'localhost', '0.')):
+            raise TypeError
+        pdf = weasyprint.HTML(website).write_pdf(save_path+filename)
+    except(FileNotFoundError, weasyprint.urls.URLFetchingError, TypeError):
+        return [1, 'Link is invalid or not known.']
+    return filename

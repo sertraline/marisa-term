@@ -4,7 +4,10 @@ from flask import request, send_from_directory
 import os, uuid, base64
 
 def allowed_file(filename, ftype):
-    ext = app.config['IMG_EXT'] if ftype == 'img' else app.config['EXT']
+    if ftype == 'img':
+        ext = app.config['IMG_EXT']
+    else:
+        ext = app.config['EXT']
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ext
 
@@ -87,6 +90,23 @@ def api():
                     f"""<img class="image-output" src='{app.config['UPLOAD_URL']}{result}'\></p>"""
                     f"""<p class="plain">Plain link:</p>"""
                     f"""<p class="plain"><a href="{app.config['UPLOAD_URL']}{result}">{app.config['UPLOAD_URL']}{result}</a></p>""")
+
+    if data['req'] == 'htmltopdf':
+        if not data['args']:
+            return f"<span class'hg-fail'>you haven't specified a website.</span>"
+        website = data['args']
+        fname = website+'.pdf'
+        fname = random_fname(fname)
+        result = processing.htmltopdf(fname, app.config['UPLOAD_FOLDER'], website)
+        if isinstance(result, list):
+            return(
+                f"""<p class="plain">{result[1]}</p>"""
+            )
+        if result:
+            return(
+                f"""<p class="plain">Plain link:</p>"""
+                f"""<p class="plain"><a href="{app.config['UPLOAD_URL']}{result}">{app.config['UPLOAD_URL']}{result}</a></p>"""
+            )
         
 
     if data['req'] == 'host':

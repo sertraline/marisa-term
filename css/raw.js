@@ -128,7 +128,7 @@ Starting REST applications daemon:                          <span class="hg-succ
 
 export var message = `
 Welcome to marisa-term!
-marisa-term 0.06 ${date} (horizon) (tty1)
+marisa-term 0.07 ${date} (horizon) (tty1)
 type 'help' to get a list of available commands.`;
 
 export var raw_links = `https://tsunagari.space`.split('\n');

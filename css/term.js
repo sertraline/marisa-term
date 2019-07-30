@@ -72,7 +72,7 @@ rot13 decoding: echo [string] | rot13 -d`,
     {
         "name": "encode image",
         "command": "encode",
-        "help": `encodes specified image red channel's Least Significant Bit with your message.\n
+        "help": `encodes red channel's Least Significant Bits of specified image with your message.\n
 usage:\nencode [message]\nencode message desu.`,
         "callback": true,
         "exec": encode
@@ -80,7 +80,7 @@ usage:\nencode [message]\nencode message desu.`,
     {
         "name": "decode image",
         "command": "decode",
-        "help": `decodes specified image red channel's Least Significant Bit and returns hidden message.\n
+        "help": `decodes red channel's Least Significant Bits of specified image and returns hidden message.\n
 usage:\ndecode`,
         "callback": true,
         "exec": decode
@@ -92,6 +92,13 @@ usage:\ndecode`,
 Formats supported: png, jpg, jpeg, webp, gif`,
         "callback": true,
         "exec": imgconvert
+    },
+    {
+        "name": "convert webpage to pdf",
+        "command": "htmltopdf",
+        "help": `converts webpage to pdf.\nusage: imgconvert [website]`,
+        "callback": true,
+        "exec": htmltopdf
     },
     {
         "name": "type help [command] to get detailed command usage.",
@@ -186,7 +193,22 @@ function imgconvert(args) {
     } else {
         interrupt(args);
     }
-    
+}
+
+function htmltopdf(args, callback) {
+    let website = args[1];
+    if(!website) { callback(`htmltopdf: please, specify a website.`); }
+    else {
+        let history = document.createElement("p");
+        history.innerHTML = `Processing link...`;
+        history.setAttribute("class", "inline-output");
+        let screen = document.getElementById("screen");
+        screen.appendChild(history);  
+        apiCall({ req: 'htmltopdf', args: args[1]}, function(response) {
+            history.outerHTML = '';
+            callback(response);
+        });
+    }
 }
 
 function encode(args) {
@@ -341,6 +363,7 @@ function echo(args) {
 
     }
     if(pipe && enc === 'base64') {
+        try {
         if(pipe.includes('-d')) {
             return decodeURIComponent(atob(string).split('').map(function(c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -351,6 +374,9 @@ function echo(args) {
                 function toSolidBytes(match, p1) {
                     return String.fromCharCode('0x' + p1);
             }));
+        }
+        } catch(URIError) {
+            return "None";
         }
     } else if(pipe && enc === 'rot13') {
         let alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя';
@@ -623,7 +649,9 @@ function global_hotkeys(event) {
             form.outerHTML = "";
 
             let history = document.createElement("p");
-            history.innerHTML = `^C`;
+            let vala = form.lastChild;
+            history.innerHTML = vala.innerHTML ? vala.innerHTML + `\n^C` : '^C';
+
             history.setAttribute("class", "inline-output");
             container.appendChild(history);
 
