@@ -160,7 +160,8 @@ export var hierarchy = [
         "command": "~",
         "current": true,
         "filedata": false,
-        "parent": false
+        "parent": false,
+        "childs": [1, 2]
     },
     {
         "name": "links",
@@ -168,6 +169,42 @@ export var hierarchy = [
         "current": false,
         "filedata": links,
         "parent": "/home/anon/"
+    },
+    {
+        "name": "marisa_gifs",
+        "command": "marisa_gifs",
+        "current": false,
+        "filedata": false,
+        "parent": "/home/anon/",
+        "childs": [3, 4, 5, 6, 7]
+    },
+    {
+        "name": "marisa1",
+        "command": "<span class='file'>marisa1</span>",
+        "current": false,
+        "filedata": "<img class='smol' src='/css/img/marisa1.gif'></img>",
+        "parent": "marisa_gifs"
+    },
+    {
+        "name": "marisa2",
+        "command": "<span class='file'>marisa2</span>",
+        "current": false,
+        "filedata": "<img class='smol' src='/css/img/marisa2.gif'></img>",
+        "parent": "marisa_gifs"
+    },
+    {
+        "name": "marisa3",
+        "command": "<span class='file'>marisa3</span>",
+        "current": false,
+        "filedata": "<img class='smol' src='/css/img/marisa3.gif'></img>",
+        "parent": "marisa_gifs"
+    },
+    {
+        "name": "marisa4",
+        "command": "<span class='file'>marisa4</span>",
+        "current": false,
+        "filedata": "<img class='smol' src='/css/img/marisa4.gif'></img>",
+        "parent": "marisa_gifs"
     }
 ]
 

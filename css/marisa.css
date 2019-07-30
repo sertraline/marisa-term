@@ -114,6 +114,11 @@ img.image-output {
     height: auto;
 }
 
+img.smol {
+    max-width: 40%;
+    height: auto;
+}
+
 a {
     text-decoration: none;
     border-bottom: 1px dashed #0082ff;

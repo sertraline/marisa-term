@@ -419,57 +419,61 @@ function hostname() {
 }
 
 function listDirectory() {
-    let directories = "..";
+    let directories = "..\t.";
     Raw.hierarchy.forEach(function(item) {
-        if(item.current && !item.filedata) { item.command = "." }
-        directories += '	' + item.command;
+        if(item.current && item.childs) { 
+            for(let i=0; i<item.childs.length; i++) {
+                directories += '\t' + Raw.hierarchy[item.childs[i]].command;
+            }
+        }
     })
     return directories;
 }
 
 function changeDirectory(args) {
     let new_dir = args[1];
-    if(!new_dir) { new_dir = "." }
     let msg = "";
+    if(!new_dir) { new_dir = "."; }
     new_dir = new_dir.replace('~', `/home/${Raw.user}/`)
+
+    let up = "";
+    let childs = [];
     Raw.hierarchy.forEach(function(item) {
-        if(new_dir == item.name) {
-            if(item.filedata) {
-                msg = `cd: not a directory: ${new_dir}`;
-                return msg;
-            }
-        }
-        else if(new_dir == ".") {
-            msg = " ";
+        if(new_dir == item.name && item.filedata) {
+            msg = `cd: not a directory: ${new_dir}`;
             return msg;
         }
-        else if(new_dir == "..") {
-            let path = ""
-            Raw.hierarchy.forEach(function(item) {
-                if(item.current) {
-                    if(item.parent) {
-                        path = item.parent;
-                    }
-                }
-                if(path == item.name) {
-                    item.current = true;
-                    return item;
-                }
-            })
+        else if(item.current) {
+            up = item.parent;
+            childs = item.childs;
         }
-        msg = " ";
     })
-    if (!msg) {
+    if(new_dir == '.') {
+        msg = " ";
+        return msg;
+    }
+    else if(new_dir == '..' && up) {
         Raw.hierarchy.forEach(function(item) {
             item.current = false;
-        })
+        });
         Raw.hierarchy.forEach(function(item) {
-            if(new_dir == item.name) {
+            if(up == item.name) {
                 item.current = true;
                 return item;
             }
         })
-        msg = " ";
+    } else {
+        for(let i=childs[0]; i<=childs[childs.length-1]; i++) {
+            if(new_dir == Raw.hierarchy[i].name && !Raw.hierarchy[i].filedata) {
+                Raw.hierarchy.forEach(function(item) {
+                    item.current = false;
+                });
+                Raw.hierarchy[i].current = true;
+                return " ";
+            }
+        }
+        msg = `cd: not a directory: ${new_dir}`;
+        return msg;
     }
     return msg;
 }
@@ -479,22 +483,25 @@ function cat(args) {
     if(!file) { return "cat: cat. Cat?"} else if(file === '.' || file === '..' || file === '~/') {
         return `cat: ${file}: is a directory.`;
     }
-    let counter = 0;
     let msg = "";
+
     Raw.hierarchy.forEach(function(item) {
-        if(file == item.name) {
-            if(item.filedata) {
-                msg = item.filedata;
-                return msg;
-            } else {
-                msg = `cat: ${file}: is a directory.`;
-                return msg;
+        if(item.current && item.childs) {
+            for(let i=item.childs[0]; i<=item.childs[item.childs.length-1]; i++) {
+                if(file == Raw.hierarchy[i].name) {
+                    if(Raw.hierarchy[i].filedata) {
+                        msg = Raw.hierarchy[i].filedata;
+                        return msg;
+                    } else {
+                        msg = `cat: ${file}: is a directory.`;
+                        return msg;
+                    }
+                }
             }
-        } else {
-            counter++;
+            msg = `${file}: No such file or directory (os error 2)`;
+            return msg;
         }
     })
-    if(Object.keys(Raw.hierarchy).length == counter) { return `${file}: No such file or directory (os error 2)`; }
     return msg;
 }
 
