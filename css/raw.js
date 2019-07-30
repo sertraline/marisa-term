@@ -191,20 +191,6 @@ export var hierarchy = [
         "current": false,
         "filedata": "<img class='smol' src='/css/img/marisa2.gif'></img>",
         "parent": "marisa_gifs"
-    },
-    {
-        "name": "marisa3",
-        "command": "<span class='file'>marisa3</span>",
-        "current": false,
-        "filedata": "<img class='smol' src='/css/img/marisa3.gif'></img>",
-        "parent": "marisa_gifs"
-    },
-    {
-        "name": "marisa4",
-        "command": "<span class='file'>marisa4</span>",
-        "current": false,
-        "filedata": "<img class='smol' src='/css/img/marisa4.gif'></img>",
-        "parent": "marisa_gifs"
     }
 ]
 
