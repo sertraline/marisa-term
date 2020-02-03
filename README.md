@@ -1,10 +1,8 @@
 # marisa-term
 development  
-[live demo](https://tsunagari.space/term)
+[live demo](https://acid.im/)
 
 This is javascript based fake terminal emulator with Flask backend.  
-
-![screenshot](marisa.png)
 
 ![preview](https://i.imgur.com/2d3LmrZ.jpg)
 
