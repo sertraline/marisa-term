@@ -19,7 +19,7 @@ OTHERASCII = [r"      .-.      ",
               r"   ‚’‚’‚’‚’    "]
 
 
-class Weather:
+class Processor:
 
     def __init__(self, config):
         self.owm = pyowm.OWM(config.OWM_API_KEY.Variables.OWM)

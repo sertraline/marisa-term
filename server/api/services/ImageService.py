@@ -17,7 +17,7 @@ class ImageService:
         dest_filename = support.gen_rand_filename(file.filename)
 
         loop = asyncio.get_event_loop()
-        result = loop.run_in_executor(None, self.mod.image.stegano_encode,
+        result = loop.run_in_executor(None, self.mod.image.Processor.stegano_encode,
                                       *{
                                           'file': file,
                                           'filename': dest_filename,
@@ -32,7 +32,7 @@ class ImageService:
             return check
 
         loop = asyncio.get_event_loop()
-        result = loop.run_in_executor(None, self.mod.image.stegano_decode, file)
+        result = loop.run_in_executor(None, self.mod.image.Processor.stegano_decode, file)
         return result
 
     async def convert_image(self, data):
@@ -42,7 +42,7 @@ class ImageService:
 
         dest_filename = support.gen_rand_filename(file.filename)
         loop = asyncio.get_event_loop()
-        result = loop.run_in_executor(None, self.mod.image.img_convert,
+        result = loop.run_in_executor(None, self.mod.image.Processor.img_convert,
                                       *{
                                           'file': file,
                                           'filename': dest_filename,

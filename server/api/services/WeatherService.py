@@ -14,5 +14,5 @@ class WeatherService:
         city = data['args']
 
         loop = asyncio.get_event_loop()
-        result = loop.run_in_executor(None, self.mod.weather.get_weather, city)
+        result = loop.run_in_executor(None, self.mod.weather.Processor.get_weather, city)
         return result

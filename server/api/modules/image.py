@@ -4,7 +4,7 @@ from .. import support
 import binascii
 
 
-class ImageProcessor:
+class Processor:
 
     DELIMITER = '001011110010110100101111'
 
@@ -17,7 +17,7 @@ class ImageProcessor:
             return "Your image is already %s." % target_ext
 
         image = Image.open(file)
-        destination = join(self.config['UPLOAD_FOLDER'], filename)
+        destination = join(self.config.UPLOAD_DIR, filename)
         saved = 0
 
         for extension in self.config.VALID['IMAGE']:
@@ -80,7 +80,7 @@ class ImageProcessor:
                             result = Image.merge("RGBA", [r, g, b, alpha[0]])
                         else:
                             result = Image.merge("RGB", [r, g, b])
-                        result.save(join(self.config['UPLOAD_FOLDER'], filename), 'PNG')
+                        result.save(join(self.config.UPLOAD_DIR, filename), 'PNG')
                         return filename
                     counter = 0
                     bin_text = self.DELIMITER

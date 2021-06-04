@@ -1,15 +1,10 @@
 from fastapi import APIRouter, Request
-from ..controllers.TermController import TermController
-from ..services.TermService import TermService
-from .. import modules
-import sys
-sys.path.append('...')
+from api.controllers.TermController import TermController
 import config
 
 
 router = APIRouter()
-service = TermService(config, modules)
-controller = TermController(service)
+controller = TermController(config)
 
 
 @router.get('/')

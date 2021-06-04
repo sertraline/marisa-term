@@ -2,7 +2,7 @@ from socket import gaierror, gethostbyname
 import re
 
 
-class HostProcessor:
+class Processor:
 
     def __init__(self, config):
         self.config = config
