@@ -11,7 +11,7 @@ class Processor:
 
     def read_file(self, filename, split=False):
         if not isfile(join(self.dir, filename)):
-            return self.config.ERR['ERR_GENERIC']
+            return self.config.ERR['NOTFOUND']
 
         with open(filename, 'r', encoding='utf-8') as f:
             data = f.read()

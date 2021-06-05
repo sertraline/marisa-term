@@ -1,5 +1,6 @@
 var = {
     'ERR_GENERIC': 'Error',
+    'NOTFOUND': 'Requested resource was not found',
     'NOFILE': 'No file provided',
     'MSG_EMPTY': 'Your message is empty. Usage: encode [your message]',
     'FILE_NONVALID': 'Unsupported file type',

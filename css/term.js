@@ -626,6 +626,7 @@ function cat(args, callback) {
                     } else if(Raw.hierarchy[i].fetch) {
                         Raw.fetch_file(Raw.hierarchy[i].fetch,
                             async function(response) {
+                                response = JSON.parse(response)['data']['fetch'];
 			                    callback(response);
 			                });
                     } else {
