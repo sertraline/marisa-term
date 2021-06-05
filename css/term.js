@@ -624,7 +624,7 @@ function cat(args, callback) {
                         msg = Raw.hierarchy[i].filedata;
                         callback(msg);
                     } else if(Raw.hierarchy[i].fetch) {
-                        msg = Raw.fetch_file(Raw.hierarchy[i].fetch,
+                        Raw.fetch_file(Raw.hierarchy[i].fetch,
                             async function(response) {
 			                    callback(response);
 			                });

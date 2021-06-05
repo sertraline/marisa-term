@@ -97,7 +97,7 @@ sda               8:0    0 465.8G  0 disk
 
 export function fetch_file(arg, callback) {
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', '/fetch', true);
+    xhr.open('POST', '/api/fetch', true);
     xhr.onload = function() {
         callback(xhr.responseText);
     };
