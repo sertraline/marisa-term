@@ -1,4 +1,4 @@
 
 def validate(config, data):
-    if not data['args']:
+    if 'filename' not in data or not data['filename']:
         return config.ERR['NOARGS']

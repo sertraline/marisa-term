@@ -17,8 +17,8 @@ def validate_upload_args(config, data):
     if check := generic(config, data):
         return check
 
-    if not data['args']:
-        return config.ERR['MSG_EMPTY']
+    if 'args' not in data or not data['args']:
+        return config.ERR['NOARGS']
 
 
 def validate_upload_noargs(config, data):

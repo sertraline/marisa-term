@@ -1,5 +1,5 @@
 
 
 def validate(config, data):
-    if not data['args']:
+    if 'args' not in data or not data['args']:
         return config.ERR['NOARGS']

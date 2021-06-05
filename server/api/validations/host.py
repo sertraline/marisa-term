@@ -9,8 +9,9 @@ FORBIDDEN = (
 
 
 def validate(config, data):
-    if not data['args']:
+    if 'args' not in data or not data['args']:
         return config.ERR['NOARGS']
+
     host = data['args']
     if any(item in host for item in FORBIDDEN):
         return config.ERR['HOST_NOVALID']
