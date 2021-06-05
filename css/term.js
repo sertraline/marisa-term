@@ -335,6 +335,7 @@ function weather(args, callback) {
     if(!city) { callback("weather: please, specify your city.")}
     else {
         apiCall("weather", { args: city }, function(response) {
+            response = JSON.parse(response)['data']['weather'];
             callback(response);
         });
     }
@@ -345,6 +346,7 @@ function host(args, callback) {
     if(!website) { callback("host: please, specify a website.") }
     else {
         apiCall("host", { args: website }, function(response) {
+            response = JSON.parse(response)['data']['host'];
             callback(response);
         });
     }
