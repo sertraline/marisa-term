@@ -6,3 +6,6 @@ var = {
     'HOST_NONVALID': 'Name or service not known',
     'NOARGS': 'No arguments provided'
 }
+
+for key, val in var.items():
+    var[key] = """<span class='hg-fail'>error:</span>""" + val

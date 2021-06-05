@@ -238,7 +238,7 @@ function getSubmit(params, event) {
 
     if(file) {
         apiCall(type, { args: params, file: file }, async function(response) {
-            output.innerHTML = response;
+            output.innerHTML = JSON.parse(response)['data'][type];
             await sleep(200);
             screen.scrollTo(0,screen.scrollHeight);
         })

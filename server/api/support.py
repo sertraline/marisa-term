@@ -17,5 +17,5 @@ def gen_rand_filename(filename):
     return str(uuid4())[:18] + get_extension(filename)
 
 
-def upload_url(payload):
-    return f"{config['UPLOAD_URL']}{payload}"
+def upload_url(payload, config):
+    return f"{config.UPLOAD_URL}{payload}"

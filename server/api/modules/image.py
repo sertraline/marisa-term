@@ -10,6 +10,12 @@ class Processor:
     def __init__(self, config, support):
         self.config = config
         self.support = support
+        self.html_response = r"""
+            <p class="plain">
+            <img class="image-output" src='%(u)s'\></p>
+            <p class="plain">Plain URL:</p>
+            <p class="plain"><a href="%(u)s">%(u)s</a></p>
+        """
 
     def img_convert(self, **kwargs):
         file = kwargs['file']
@@ -35,7 +41,7 @@ class Processor:
 
         if not saved:
             return "Format was not recognized."
-        return filename
+        return self.html_response % {'u': filename}
 
     def get_image(self, file):
         image = Image.open(file)
@@ -89,7 +95,7 @@ class Processor:
                         else:
                             result = Image.merge("RGB", [r, g, b])
                         result.save(join(self.config.UPLOAD_DIR, filename), 'PNG')
-                        return filename
+                        return self.html_response % {'u': filename}
                     counter = 0
                     bin_text = self.DELIMITER
 

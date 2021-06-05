@@ -35,11 +35,11 @@ class TermService:
 
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, lambda: self.di.image.stegano_encode(
-                                    **{
-                                        'file': file.file,
-                                        'filename': dest_filename,
-                                        'text': data['args']
-                                    }))
+            **{
+                'file': file.file,
+                'filename': dest_filename,
+                'text': data['args']
+            }))
 
     async def decode(self, request: Request):
         data = await request.form()
@@ -61,11 +61,11 @@ class TermService:
         dest_filename = support.gen_rand_filename(file.filename)
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, lambda: self.di.image.img_convert(
-                                    **{
-                                        'file': file.file,
-                                        'filename': dest_filename,
-                                        'target_ext': data['args']
-                                    }))
+            **{
+                'file': file.file,
+                'filename': dest_filename,
+                'target_ext': data['args']
+            }))
 
     async def host(self, request: Request):
         data = await request.form()
