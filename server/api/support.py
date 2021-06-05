@@ -1,7 +1,4 @@
 from uuid import uuid4
-import sys
-sys.path.append("..")
-import config
 
 
 def get_extension(filename):
@@ -12,7 +9,7 @@ def var_to_string(var):
     return f'{var=}'.split('=')[0]
 
 
-def is_valid_upload(filename, val_type):
+def is_valid_upload(filename, val_type, config):
     return get_extension(filename) in config.VALID[val_type]
 
 

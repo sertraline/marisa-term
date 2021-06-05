@@ -94,13 +94,6 @@ Formats supported: png, jpg, jpeg, webp, gif`,
         "exec": imgconvert
     },
     {
-        "name": "convert webpage to pdf",
-        "command": "htmltopdf",
-        "help": `converts webpage to pdf.\nusage: imgconvert [website]`,
-        "callback": true,
-        "exec": htmltopdf
-    },
-    {
         "name": "type help [command] to get detailed command usage.",
         "command": "help",
         "help": "shows help. Unexpected, huh?",
@@ -110,7 +103,7 @@ Formats supported: png, jpg, jpeg, webp, gif`,
 
 function help(params) {
     let msg = ""
-    if(params.slice(1).length == 0) {
+    if(params.slice(1).length === 0) {
         commands.forEach(function(item) {
             msg += item.command + ': ' + item.name + '\n';
         })
@@ -119,7 +112,7 @@ function help(params) {
     } else {
         let command = params[1];
         commands.forEach(function(item) {
-            if(item.command == command) {
+            if(item.command === command) {
                 msg = item.help;
                 return msg;
             }
@@ -150,7 +143,7 @@ async function greeting() {
     screen.appendChild(par);
 
     // iterate through boot sequence list with random delays
-    if(getCookie('boot') != 'true') {
+    if(getCookie('boot') !== 'true') {
         for (let i=0; i<Raw.boot_sequence.length; i++) {
             await sleep(Math.floor(Math.random() * 40));
             par.innerHTML += Raw.boot_sequence[i] + '\n';
@@ -164,15 +157,15 @@ async function greeting() {
     window.scrollTo(0,document.body.scrollHeight);
 
     setCookie("boot=true");
-    return new String("done")
+    return String("done")
 }
 
-function apiCall(params, callback) {
+function apiCall(type, params, callback) {
     // params = {
-    // "req": command,
-    // "args": args }
+    //   "args": args
+    // }
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api', true);
+    xhr.open('POST', '/'+type, true);
     xhr.onload = function() {
         callback(xhr.responseText);
     };
@@ -195,24 +188,8 @@ function imgconvert(args) {
     }
 }
 
-function htmltopdf(args, callback) {
-    let website = args[1];
-    if(!website) { callback(`htmltopdf: please, specify a website.`); }
-    else {
-        let history = document.createElement("p");
-        history.innerHTML = `Processing link...`;
-        history.setAttribute("class", "inline-output");
-        let screen = document.getElementById("screen");
-        screen.appendChild(history);  
-        apiCall({ req: 'htmltopdf', args: args[1]}, function(response) {
-            history.outerHTML = '';
-            callback(response);
-        });
-    }
-}
-
 function encode(args) {
-    if(args.slice(1).length == 0 || !args.slice(1).join(' ').trim()) {
+    if(args.slice(1).length === 0 || !args.slice(1).join(' ').trim()) {
         display_error("your message is empty.\nusage: encode [your message]");
     } else {
         interrupt(args);
@@ -237,7 +214,7 @@ function getSubmit(params, event) {
     if(!params) { output.innerHTML = "<span class='hg-fail'>error:</span> your message is empty.\nusage: encode [your message]" }
 
     if(file) {
-        apiCall({ req: `${type}`, args: params, file: file }, async function(response) {
+        apiCall(type, { args: params, file: file }, async function(response) {
             output.innerHTML = response;
             await sleep(200);
             window.scrollTo(0,document.body.scrollHeight);
@@ -306,7 +283,7 @@ function weather(args, callback) {
     let city = args.slice(1).join(' ');
     if(!city) { callback("weather: please, specify your city.")}
     else {
-        apiCall({ req: "weather", args: city }, function(response) {
+        apiCall("weather", { args: city }, function(response) {
             callback(response);
         });
     }
@@ -316,7 +293,7 @@ function host(args, callback) {
     let website = args[1];
     if(!website) { callback("host: please, specify a website.") }
     else {
-        apiCall({ req: "host", args: website }, function(response) {
+        apiCall("host", { args: website }, function(response) {
             callback(response);
         });
     }
@@ -379,16 +356,24 @@ function echo(args) {
             return "None";
         }
     } else if(pipe && enc === 'rot13') {
-        let alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя';
-        let beta = 'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklmМНОПРСТУФХЦЧШЩЪЫЬЭЮЯАБВГДЕЁЖЗИЙКЛмнопрстуфхцчшщъыьэюяабвгдеёжзийкл';
+        let alpha = `ABCDEFGHIJKLMNOPQRSTUVWXYZ
+        abcdefghijklmnopqrstuvwxyz
+        АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+        абвгдеёжзийклмнопрстуфхцчшщъыьэюя`;
+
+        let beta = `NOPQRSTUVWXYZABCDEFGHIJKLM
+        nopqrstuvwxyzabcdefghijklm
+        МНОПРСТУФХЦЧШЩЪЫЬЭЮЯАБВГДЕЁЖЗИЙКЛ
+        мнопрстуфхцчшщъыьэюяабвгдеёжзийкл`;
+
+        let input = alpha;
+        let output = beta;
         if(pipe.includes('-d')) {
             // https://codereview.stackexchange.com/a/132140
-            var input = beta;
-            var output = alpha;
-        } else {
-            var input = alpha;
-            var output = beta;
+            input = beta;
+            output = alpha;
         }
+
         let index = x => input.indexOf(x);
         let translate = x => index(x) > -1 ? output[index(x)] : x;
         return string.split('').map(translate).join('');
@@ -406,7 +391,7 @@ function groups(args) {
     if(!user) { return Raw.groupsls.join(' ') }
     let msg = "";
     Raw.groupsls.forEach(function(item) {
-        if(item == user) {
+        if(item === user) {
             msg = item;
             return msg;
         }
@@ -439,7 +424,7 @@ function changeDirectory(args) {
     let up = "";
     let childs = [];
     Raw.hierarchy.forEach(function(item) {
-        if(new_dir == item.name && item.filedata) {
+        if(new_dir === item.name && item.filedata) {
             msg = `cd: not a directory: ${new_dir}`;
             return msg;
         }
@@ -448,23 +433,23 @@ function changeDirectory(args) {
             childs = item.childs;
         }
     })
-    if(new_dir == '.') {
+    if(new_dir === '.') {
         msg = " ";
         return msg;
     }
-    else if(new_dir == '..' && up) {
+    else if(new_dir === '..' && up) {
         Raw.hierarchy.forEach(function(item) {
             item.current = false;
         });
         Raw.hierarchy.forEach(function(item) {
-            if(up == item.name) {
+            if(up === item.name) {
                 item.current = true;
                 return item;
             }
         })
     } else {
         for(let i=childs[0]; i<=childs[childs.length-1]; i++) {
-            if(new_dir == Raw.hierarchy[i].name && !Raw.hierarchy[i].filedata) {
+            if(new_dir === Raw.hierarchy[i].name && !Raw.hierarchy[i].filedata) {
                 Raw.hierarchy.forEach(function(item) {
                     item.current = false;
                 });
@@ -488,7 +473,7 @@ function cat(args) {
     Raw.hierarchy.forEach(function(item) {
         if(item.current && item.childs) {
             for(let i=item.childs[0]; i<=item.childs[item.childs.length-1]; i++) {
-                if(file == Raw.hierarchy[i].name) {
+                if(file === Raw.hierarchy[i].name) {
                     if(Raw.hierarchy[i].filedata) {
                         msg = Raw.hierarchy[i].filedata;
                         return msg;
@@ -506,11 +491,10 @@ function cat(args) {
 }
 
 function evaluate(value, callback) {
-    let result = undefined;
     let values = value.split(" ");
     let counter = 0;
     commands.forEach(function(item) {
-        if(item.command == values[0]) {
+        if(item.command === values[0]) {
             if(item.callback) {
                 item.exec(values, function(response) {
                     callback(response);
@@ -523,7 +507,9 @@ function evaluate(value, callback) {
             counter++;
         }
     })
-    if(Object.keys(commands).length == counter) { callback(`marisa-term: command not found: ${value}`)}
+    if(Object.keys(commands).length === counter) {
+        callback(`marisa-term: command not found: ${value}`)
+    }
 }
 
 function get_key_press(element, event) {
@@ -580,7 +566,7 @@ function auto_grow(event) {
 
 function get_prompt(prompt_message) {
     Raw.hierarchy.forEach(function(item) {
-        if(item.current == true) {
+        if(item.current === true) {
             prompt_message = `[${item.name.replace(`/home/anon/`, "~")}] 良い `;
         }
     })
@@ -594,7 +580,7 @@ function get_prompt(prompt_message) {
     let inp = document.createElement("textarea");
     inp.setAttribute("type", "text");
     inp.setAttribute("id", "shell");
-    inp.setAttribute("rows", 1);
+    inp.setAttribute("rows", '1');
     inp.addEventListener("keydown", function(event) {
         get_key_press(this, event);
     });
@@ -612,12 +598,12 @@ function get_prompt(prompt_message) {
 document.addEventListener("keydown", global_hotkeys, false);
 
 function global_hotkeys(event) {
-    if(event.keyCode == 27) {
+    if(event.keyCode === 27) {
         // esc
         let inp = document.getElementById("shell");
         inp.focus();
     }
-    if(event.ctrlKey && event.keyCode == 76) { 
+    if(event.ctrlKey && event.keyCode === 76) {
         // ctrl+l
         let screen = document.getElementById("screen");
         screen.innerHTML = "";
@@ -625,7 +611,7 @@ function global_hotkeys(event) {
         get_prompt();
         event.preventDefault(); 
     }
-    if(event.keyCode == 38) {
+    if(event.keyCode === 38) {
         // arrow up
         let value = shell_history[shell_history.length - 1]
         if(value) {
@@ -635,7 +621,7 @@ function global_hotkeys(event) {
         shell_history.unshift(value);
         event.preventDefault(); 
     }
-    if(event.ctrlKey && event.keyCode == 67) {
+    if(event.ctrlKey && event.keyCode === 67) {
         // ctrl+c
         try {
             let val = document.getElementById("shell");

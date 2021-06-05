@@ -8,5 +8,5 @@ def validate_image_upload(config, file, data):
     if not data['args']:
         return config.ERR['MSG_EMPTY']
 
-    if not support.is_valid_upload(file.filename, 'image'):
+    if not support.is_valid_upload(file.filename, 'image', config):
         return config.ERR['FILE_NONVALID']
