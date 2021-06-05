@@ -10,10 +10,11 @@ class Processor:
         self.dir = config.STATIC_DIR
 
     def read_file(self, filename, split=False):
-        if not isfile(join(self.dir, filename)):
+        path = join(self.dir, filename)
+        if not isfile(path):
             return self.config.ERR['NOTFOUND']
 
-        with open(filename, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             data = f.read()
         if split:
             data = data.split('\n')
