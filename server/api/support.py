@@ -10,7 +10,7 @@ def var_to_string(var):
 
 
 def is_valid_upload(filename, val_type, config):
-    return get_extension(filename) in config.VALID[val_type]
+    return get_extension(filename).strip('.') in config.VALID[val_type.upper()]
 
 
 def gen_rand_filename(filename):
