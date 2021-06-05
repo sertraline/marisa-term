@@ -27,7 +27,7 @@ class TermService:
     async def encode(self, request: Request):
         data = await request.form()
 
-        if check := validations.image.validate_image_upload(self.config, data):
+        if check := validations.image.validate_upload_args(self.config, data):
             return check
         file = data['file']
 
@@ -44,7 +44,7 @@ class TermService:
     async def decode(self, request: Request):
         data = await request.form()
 
-        if check := validations.image.validate_image_upload(self.config, data):
+        if check := validations.image.validate_upload_noargs(self.config, data):
             return check
         file = data['file']
 
@@ -54,7 +54,7 @@ class TermService:
     async def convert(self, request: Request):
         data = await request.form()
 
-        if check := validations.image.validate_image_upload(self.config, data):
+        if check := validations.image.validate_upload_args(self.config, data):
             return check
         file = data['file']
 

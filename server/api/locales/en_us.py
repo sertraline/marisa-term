@@ -8,4 +8,4 @@ var = {
 }
 
 for key, val in var.items():
-    var[key] = """<span class='hg-fail'>error:</span>""" + val
+    var[key] = """<span class='hg-fail'>error:</span> """ + val

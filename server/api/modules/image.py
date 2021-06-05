@@ -35,7 +35,7 @@ class Processor:
                 if target_ext in ('jpg', 'jpeg'):
                     image = image.convert('RGB')
 
-                image.save(destination, extension)
+                image.save(destination.replace(ext, target_ext), extension)
                 saved = 1
                 break
 
