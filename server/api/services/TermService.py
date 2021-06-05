@@ -34,9 +34,9 @@ class TermService:
         dest_filename = support.gen_rand_filename(file.filename)
 
         loop = asyncio.get_event_loop()
-        return loop.run_in_executor(None, lambda: self.di.image.stegano_encode(
+        return await loop.run_in_executor(None, lambda: self.di.image.stegano_encode(
                                     **{
-                                        'file': file,
+                                        'file': file.file,
                                         'filename': dest_filename,
                                         'text': data['args']
                                     }))
@@ -49,7 +49,7 @@ class TermService:
         file = data['file']
 
         loop = asyncio.get_event_loop()
-        return loop.run_in_executor(None, self.di.image.stegano_decode, file)
+        return await loop.run_in_executor(None, self.di.image.stegano_decode, file.file)
 
     async def convert(self, request: Request):
         data = await request.form()
@@ -60,9 +60,9 @@ class TermService:
 
         dest_filename = support.gen_rand_filename(file.filename)
         loop = asyncio.get_event_loop()
-        return loop.run_in_executor(None, lambda: self.di.image.img_convert(
+        return await loop.run_in_executor(None, lambda: self.di.image.img_convert(
                                     **{
-                                        'file': file,
+                                        'file': file.file,
                                         'filename': dest_filename,
                                         'target_ext': data['args']
                                     }))
@@ -81,7 +81,7 @@ class TermService:
         city = data['args']
 
         loop = asyncio.get_event_loop()
-        return loop.run_in_executor(None, self.di.weather.get_weather, city)
+        return await loop.run_in_executor(None, self.di.weather.get_weather, city)
 
     async def fetch(self, request: Request):
         data = await request.form()

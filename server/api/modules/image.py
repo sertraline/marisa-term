@@ -25,7 +25,7 @@ class Processor:
         saved = 0
 
         for extension in self.config.VALID['IMAGE']:
-            if target_ext.upper() == extension:
+            if target_ext == extension:
                 if target_ext in ('jpg', 'jpeg'):
                     image = image.convert('RGB')
 

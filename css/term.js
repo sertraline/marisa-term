@@ -205,6 +205,7 @@ function imgconvert(args) {
     } else if (!extensions.includes(format)) {
         display_error(`looks like extension you provided is invalid. Available formats: ${extensions}`);
     } else {
+        args[0] = 'convert';
         interrupt(args);
     }
 }
