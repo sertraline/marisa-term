@@ -39,8 +39,6 @@ This is javascript based fake terminal emulator with Flask backend.
 * <kbd>decode</kbd> - decodes red channel's LSB of specified image and returns hidden message.
 * <kbd>imgconvert</kbd> - converts picture to specified format.
   * `imgconvert [png|jpg|jpeg|webp|gif]`
-* <kbd>htmltopdf</kbd> - converts html webpage to pdf file.
-  * `htmltopdf [website]`
 * <kbd>help</kbd> - prints help. 
   * `help [command]` gives more detailed help about the command provided.  
 
@@ -48,8 +46,11 @@ This is javascript based fake terminal emulator with Flask backend.
 `raw.js` - contains 'raw' text data and several variables to use in `term.js`.  
 `term.js` - emulator itself. All functions are defined within its body. For everything that can't be done with javascript it makes a POST request to backend server.  
 
-`module_config.py` - contains configurations for python modules like openweathermap.  
-`processing.py` - is imported by `routes.py` later, contains actual service functions, e.g `getWeather` or `host`.  
+`config.py` - contains configurations for your application.  
+`api` - server core.  
+  * Response logic is defined in TermController.  
+  * Request logic is defined in TermService.  
+  * Processing logic is defined in `modules` directory.  
 
 `term.html` - emulator's body. It needs two divs to operate:  
 ```
@@ -61,32 +62,26 @@ The rest of html elements is defined in `term.js`.
 ```
 marisa-term
 ├── css
+│   ├── img [..]
 │   ├── marisa.css
 │   ├── marisa.gif
 │   ├── raw.js
 │   └── term.js
-├── marisa.png
-├── README.md
 ├── server
-│   ├── app
-│   │   ├── __init__.py
-│   │   ├── module_config.py
-│   │   ├── processing.py
-│   │   └── routes.py
-│   └── server.py
+│   ├── api [..]
+│   ├── config.py
+│   ├── main.py
+│   └── router.py
 └── term.html
 ```  
 
 ## Requisites  
-`python3 -m pip install --user flask pyowm Pillow weasyprint`  
+`python3 -m pip install --user fastapi pyowm Pillow uvicorn` 
+* Set your Openweather API key in config.  
 
-Install gunicorn:  
-`sudo apt install gunicorn3`  
-
-Run:  
-`gunicorn3 -w 4 -b 0.0.0.0:8050 server:app`  
-`-w` - workers;  
-`-b` - bind to address:port  
+Run in the background:  
+`exec nohup python3 main.py &`  
+`disown`
 
 ## Creating apache2 reverse proxy for api requests  
 
@@ -97,11 +92,20 @@ Edit your main website config: add <Location /api> block to it.
 ```
 <VirtualHost *:443>
 ...
-    <Location "/api">
-        ProxyPass http://0.0.0.0:8050/api
-        ProxyPassReverse http://0.0.0.0:8050/api
+    <Location "/api/">
+        ProxyPass http://0.0.0.0:8050/
+        ProxyPassReverse http://0.0.0.0:8050/
     </Location>
 ...
 </VirtualHost>
 ```  
-Now all requests to yourwebsite/api will be forwarded to your Flask application.
+
+## Creating nginx reverse proxy  
+```
+    location /api/ {
+        proxy_pass http://127.0.0.1:8050/;
+        proxy_redirect off;
+    }
+```  
+
+Now all requests to yourwebsite/api will be forwarded to your application.
