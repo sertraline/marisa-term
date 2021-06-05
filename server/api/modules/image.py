@@ -41,7 +41,9 @@ class Processor:
 
         if not saved:
             return "Format was not recognized."
-        return self.html_response % {'u': filename}
+        return self.html_response % {
+            'u': self.support.upload_url(filename, self.config)
+        }
 
     def get_image(self, file):
         image = Image.open(file)
@@ -95,7 +97,9 @@ class Processor:
                         else:
                             result = Image.merge("RGB", [r, g, b])
                         result.save(join(self.config.UPLOAD_DIR, filename), 'PNG')
-                        return self.html_response % {'u': filename}
+                        return self.html_response % {
+                            'u': self.support.upload_url(filename, self.config)
+                        }
                     counter = 0
                     bin_text = self.DELIMITER
 
