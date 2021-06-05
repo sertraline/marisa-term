@@ -1,6 +1,5 @@
 from PIL import Image
 from os.path import join
-from .. import support
 import binascii
 
 
@@ -8,11 +7,16 @@ class Processor:
 
     DELIMITER = '001011110010110100101111'
 
-    def __init__(self, config):
+    def __init__(self, config, support):
         self.config = config
+        self.support = support
 
-    def img_convert(self, file, filename, target_ext):
-        ext = support.get_extension(filename)
+    def img_convert(self, **kwargs):
+        file = kwargs['file']
+        filename = kwargs['filename']
+        target_ext = kwargs['target_ext']
+
+        ext = self.support.get_extension(filename)
         if ext == target_ext:
             return "Your image is already %s." % target_ext
 
@@ -63,7 +67,11 @@ class Processor:
         except UnicodeDecodeError:
             return "Image is not encoded or is invalid."
 
-    def stegano_encode(self, file, filename, text):
+    def stegano_encode(self, **kwargs):
+        file = kwargs['file']
+        filename = kwargs['filename']
+        text = kwargs['text']
+
         r, g, b, alpha, x, y = self.get_image(file)
 
         filename = filename.rsplit('.')[0]

@@ -12,16 +12,43 @@ class TermController:
         return {"data": "I'm a teapot"}
 
     async def encode(self, request: Request):
-        return await self.service.encode(request)
+        return {
+            'data': {
+                'encode': await self.service.encode(request)
+            }
+        }
 
     async def decode(self, request: Request):
-        return await self.service.decode(request)
+        return {
+            'data': {
+                'decode': await self.service.decode(request)
+            }
+        }
 
     async def convert(self, request: Request):
-        return await self.service.convert(request)
+        return {
+            'data': {
+                'convert': await self.service.convert(request)
+            }
+        }
 
     async def host(self, request: Request):
-        return await self.service.host(request)
+        return {
+            'data': {
+                'host': await self.service.host(request)
+            }
+        }
 
     async def weather(self, request: Request):
-        return await self.service.weather(request)
+        return {
+            'data': {
+                'weather': await self.service.weather(request)
+            }
+        }
+
+    async def fetch(self, request: Request):
+        return {
+            'data': {
+                'fetch': await self.service.fetch(request)
+            }
+        }

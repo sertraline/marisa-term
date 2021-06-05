@@ -2,6 +2,7 @@ import api.locales as loc
 
 UPLOAD_URL = 'https://acid.im/temp/'
 UPLOAD_DIR = '/var/www/html/temp/'
+STATIC_DIR = '/var/www/html/content'
 
 VALID = {
     'IMAGE': ['png', 'jpg', 'jpeg', 'webp', 'gif'],

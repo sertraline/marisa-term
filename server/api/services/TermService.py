@@ -1,58 +1,94 @@
 from fastapi import Request
-from .. import services
 from .. import modules
+from .. import support
+from .. import validations
+import asyncio
+import pkgutil
+
+
+class DependencyInjector:
+
+    def __init__(self, config):
+        self.collect(config)
+
+    def collect(self, config):
+        for _loader, _module_name, _ in pkgutil.walk_packages(modules.__path__):
+            _module = _loader.find_module(_module_name).load_module(_module_name)
+            globals()[_module_name] = _module
+            setattr(self, _module_name, _module.Processor(config, support))
 
 
 class TermService:
 
     def __init__(self, config):
         self.config = config
-
-        args = [
-            config,
-            modules
-        ]
-
-        self.image_serv = services.ImageService.ImageService(*args)
-        self.host_serv = services.HostService.HostService(*args)
-        self.weather_serv = services.WeatherService.WeatherService(*args)
+        self.di = DependencyInjector(config)
 
     async def encode(self, request: Request):
         data = await request.form()
-        return {
-            'data': {
-                'encode': await self.image_serv.encode(data)
-            }
-        }
+
+        if check := validations.image.validate_image_upload(self.config, data):
+            return check
+        file = data['file']
+
+        dest_filename = support.gen_rand_filename(file.filename)
+
+        loop = asyncio.get_event_loop()
+        return loop.run_in_executor(None, self.di.image.stegano_encode,
+                                    {
+                                        'file': file,
+                                        'filename': dest_filename,
+                                        'text': data['args']
+                                    })
 
     async def decode(self, request: Request):
         data = await request.form()
-        return {
-            'data': {
-                'decode': await self.image_serv.decode(data)
-            }
-        }
+
+        if check := validations.image.validate_image_upload(self.config, data):
+            return check
+        file = data['file']
+
+        loop = asyncio.get_event_loop()
+        return loop.run_in_executor(None, self.di.image.stegano_decode, file)
 
     async def convert(self, request: Request):
         data = await request.form()
-        return {
-            'data': {
-                'convert': await self.image_serv.convert_image(data)
-            }
-        }
+
+        if check := validations.image.validate_image_upload(self.config, data):
+            return check
+        file = data['file']
+
+        dest_filename = support.gen_rand_filename(file.filename)
+        loop = asyncio.get_event_loop()
+        return loop.run_in_executor(None, self.di.image.img_convert,
+                                    {
+                                        'file': file,
+                                        'filename': dest_filename,
+                                        'target_ext': data['args']
+                                    })
 
     async def host(self, request: Request):
         data = await request.form()
-        return {
-            'data': {
-                'host': await self.host_serv.get_host(data)
-            }
-        }
+        if check := validations.host.validate(self.config, data):
+            return check
+        host = data['args']
+        return self.di.host.get_host(host)
 
     async def weather(self, request: Request):
         data = await request.form()
-        return {
-            'data': {
-                'weather': await self.weather_serv.get_weather(data)
-            }
-        }
+        if check := validations.weather.validate(self.config, data):
+            return check
+        city = data['args']
+
+        loop = asyncio.get_event_loop()
+        return loop.run_in_executor(None, self.di.weather.get_weather, city)
+
+    async def fetch(self, request: Request):
+        data = await request.form()
+        if check := validations.fetch.validate(self.config, data):
+            return check
+
+        filename = data['filename']
+        split = 'split' in data
+
+        return self.di.fetch.read_file(filename, split)

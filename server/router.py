@@ -35,3 +35,8 @@ async def encode(request: Request):
 @router.post('/weather')
 async def encode(request: Request):
     return await controller.weather(request)
+
+
+@router.post('/fetch')
+async def content(request: Request):
+    return await controller.fetch(request)

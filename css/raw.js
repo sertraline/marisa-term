@@ -102,7 +102,7 @@ export function fetch_file(arg, callback) {
         callback(xhr.responseText);
     };
     let data = new FormData();
-    data.append('args', arg);
+    data.append('filename', arg);
     xhr.send(data);
 }
 
@@ -114,14 +114,6 @@ export var hierarchy = [
         "filedata": false,
         "parent": false,
         "childs": [1, 2, 3, 4]
-    },
-    {
-        "name": "links.txt",
-        "command": "<span class='file'>links.txt</span>",
-        "current": false,
-        "filedata": false,
-        "fetch": "links",
-        "parent": "anon"
     },
     {
         "name": "pale_fire.txt",

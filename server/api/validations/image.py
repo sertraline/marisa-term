@@ -1,7 +1,11 @@
 from .. import support
 
 
-def validate_image_upload(config, file, data):
+def validate_image_upload(config, data):
+    if 'file' not in data:
+        return config.ERR['NOFILE']
+
+    file = data['file']
     if file.filename == '':
         return config.ERR['ERR_GENERIC']
 

@@ -4,8 +4,9 @@ import re
 
 class Processor:
 
-    def __init__(self, config):
+    def __init__(self, config, support):
         self.config = config
+        self.support = support
 
     def get_host(self, host):
         try:

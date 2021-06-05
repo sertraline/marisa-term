@@ -3,6 +3,8 @@
 *.session
 *.html
 
+.idea/
+
 config.py
 logs/
 images/

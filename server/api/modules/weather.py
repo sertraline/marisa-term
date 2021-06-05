@@ -21,8 +21,9 @@ OTHERASCII = [r"      .-.      ",
 
 class Processor:
 
-    def __init__(self, config):
-        self.owm = pyowm.OWM(config.OWM_API_KEY.Variables.OWM)
+    def __init__(self, config, support):
+        self.support = support
+        self.owm = pyowm.OWM(config.OWM_API_KEY)
         self.manager = self.owm.weather_manager()
 
     def get_weather(self, city):
