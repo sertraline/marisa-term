@@ -186,7 +186,7 @@ function apiCall(type, params, callback) {
     //   "args": args
     // }
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', '/'+type, true);
+    xhr.open('POST', '/api/'+type, true);
     xhr.onload = function() {
         callback(xhr.responseText);
     };
