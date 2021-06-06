@@ -20,22 +20,24 @@ class Processor:
     def img_convert(self, **kwargs):
         file = kwargs['file']
         filename = kwargs['filename']
-        target_ext = kwargs['target_ext']
+        target_ext = kwargs['target_ext'].strip('.')
 
         ext = self.support.get_extension(filename)
         if ext == target_ext:
             return "Your image is already %s." % target_ext
 
         image = Image.open(file)
-        destination = join(self.config.UPLOAD_DIR, filename)
         saved = 0
 
         for extension in self.config.VALID['IMAGE']:
             if target_ext == extension:
                 if target_ext in ('jpg', 'jpeg'):
                     image = image.convert('RGB')
+                    extension = 'JPEG'
 
-                image.save(destination.replace(ext, target_ext), extension)
+                filename = filename.replace(ext, '.%s' % target_ext)
+                destination = join(self.config.UPLOAD_DIR, filename)
+                image.save(destination, extension)
                 saved = 1
                 break
 
