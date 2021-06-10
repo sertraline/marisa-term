@@ -1,0 +1,34 @@
+
+export default {
+  state: {
+      history: []
+  },
+
+  getters: {
+      history: (state) => state.history
+  },
+
+  mutations: {
+      push: (state, item) => (state.history.push(item)),
+      shift: (state) => (state.history.shift()),
+      pop: (state) => (state.history.pop())
+  },
+
+  actions: {
+      push({ commit, state }, item) {
+
+          if (!item) { return }
+
+          if(state.history.length > 25 ) {
+              commit('shift');
+          }
+
+          console.log('push to history', item);
+          commit('push', item);
+      },
+
+      pop({ commit }) {
+          commit('pop');
+      }
+  },
+}

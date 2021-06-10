@@ -1,0 +1,318 @@
+
+body,
+html {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important
+}
+
+* {
+    box-sizing: border-box
+}
+
+html {
+    font-size: 16px;
+    background-color: #000;
+    background-attachment: fixed;
+    position: relative;
+    scrollbar-color: #0082ff #000000 !important;
+    scrollbar-width: thin !important
+}
+
+html::-webkit-scrollbar {
+    background: #000000;
+    width: 4px
+}
+
+html::-webkit-scrollbar-thumb {
+    background: #0082ff
+}
+
+body {
+    position: relative;
+    width: 100%;
+    background: #000
+}
+
+.container {
+    padding-left: 20px;
+    padding-bottom: 5px;
+}
+
+p {
+    width: 90%;
+    white-space: pre-wrap;
+    color: white;
+    margin: 0;
+}
+
+p.inline {
+    display: flex;
+    flex: 1;
+    width: auto;
+    white-space: pre-line;
+    word-break: break-all;
+    padding-left: 9px;
+}
+
+p.inline-output {
+    flex-basis: 100%;
+    word-break: break-word;
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+#input {
+    display: flex;
+    width: 100%;
+    height: 1.5rem;
+}
+
+#prompt {
+    width: auto;
+    height: 100%;
+}
+
+a {
+    text-decoration: none;
+    border-bottom: 1px dashed #0082ff;
+    color: #0082ff;
+}
+
+.hg-succ {
+    color: green;
+}
+
+.hg-fail {
+    color: red;
+}
+
+#screen {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: stretch;
+    padding-top: 20px;
+    padding-left: 20px;
+}
+
+#stdout {
+    display: block;
+    width: 100%;
+}
+
+#shell {
+    display: flex;
+    flex: 1;
+
+    border: none;
+    outline: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    font-size: inherit;
+    text-align: left;
+
+    height: 100%;
+    min-height: 24px;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-all;
+    background-color: #000;
+    color: white;
+    resize: none;
+
+    padding-top: 0;
+    margin: 0;
+}
+
+#interrupt {
+    padding-left: 20px;
+}
+
+.btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.btn {
+    border: 2px solid #0082ff;
+    color: white;
+    background-color: black;
+    padding: 8px 12px;
+    margin-right: 2px;
+}
+
+.btn-wrapper:hover > .btn {
+    background-color: #0082ff;
+}
+
+.btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
+.btn-wrapper input[type=submit] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
+.file {
+    color: rgb(44, 155, 77);
+}
+
+@media only screen and (max-width:801px) {
+
+    .crt {
+        overflow: hidden
+    }
+
+}
+
+@keyframes blink {
+    50% {
+        border-color: #0082ff
+    }
+}
+
+@media only screen and (min-width:1800px) {
+    .crt {
+        height: 100%
+    }
+}
+
+@keyframes flicker {
+    0% {
+        opacity: .27861
+    }
+
+    5% {
+        opacity: .34769
+    }
+
+    10% {
+        opacity: .23604
+    }
+
+    15% {
+        opacity: .90626
+    }
+
+    20% {
+        opacity: .18128
+    }
+
+    25% {
+        opacity: .83891
+    }
+
+    30% {
+        opacity: .65583
+    }
+
+    35% {
+        opacity: .67807
+    }
+
+    40% {
+        opacity: .26559
+    }
+
+    45% {
+        opacity: .84693
+    }
+
+    50% {
+        opacity: .96019
+    }
+
+    55% {
+        opacity: .08594
+    }
+
+    60% {
+        opacity: .20313
+    }
+
+    65% {
+        opacity: .71988
+    }
+
+    70% {
+        opacity: .53455
+    }
+
+    75% {
+        opacity: .37288
+    }
+
+    80% {
+        opacity: .71428
+    }
+
+    85% {
+        opacity: .70419
+    }
+
+    90% {
+        opacity: .7003
+    }
+
+    95% {
+        opacity: .36108
+    }
+
+    100% {
+        opacity: .24387
+    }
+}
+
+.crt::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(18, 16, 16, .1);
+    opacity: 0;
+    z-index: 2;
+    pointer-events: none;
+    animation: flicker .15s infinite
+}
+
+.crt::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, .25) 50%), linear-gradient(90deg, rgba(255, 0, 0, .06), rgba(0, 255, 0, .02), rgba(0, 0, 255, .05));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none
+}
+
+.crt {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 888;
+    pointer-events: none
+}
