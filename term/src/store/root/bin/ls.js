@@ -1,3 +1,6 @@
+import store from '../..';
+
+
 class ListDirectory {
     static name = "List directory";
     static id = "ls";
@@ -9,7 +12,15 @@ class ListDirectory {
     }
 
     static run() {
-        return {'response': 'test'};
+        let data = store.state.fs.filesystem;
+        let out = '';
+
+        for (let key in data) {
+            out += data[key]['name'];
+            out += ' ';
+        }
+
+        return {'response': out};
     }
 
     static help() {

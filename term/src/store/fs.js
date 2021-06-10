@@ -8,17 +8,19 @@ export default {
   },
 
   getters: {
-      filesystem: (state) => state.filesystem
+      filesystem: (state) => state.filesystem,
+      index: (state) => state.index
   },
 
   mutations: {
-      setFS: (state, data) => this.filesystem = data,
+      setFS: (state, data) => state.filesystem = data,
   },
 
   actions: {
       async getfs({ commit }) {
-          let response = await axios.get('http://127.0.0.1/api/fs')
-          commit('setFS', response.data);
+          let response = await axios.get('http://127.0.0.1:8050/fs')
+          commit('setFS', response.data['data']['fs']);
+          console.log(response.data['data']['fs']);
       }
   },
 }

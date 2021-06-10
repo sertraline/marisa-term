@@ -34,12 +34,14 @@
             ...mapGetters('termhistory', ['history']),
             ...mapGetters('stdout', ['stdout']),
             ...mapGetters('processor', ['commands']),
+            ...mapGetters('fs', ['filesystem', 'index']),
         },
 
         methods: {
             ...mapActions('termhistory', ['push', 'pop', 'shift', 'unshift']),
             ...mapActions('processor', ['run']),
             ...mapActions('stdout', ['stdwrite', 'stdclear']),
+            ...mapActions('fs', ['getfs']),
 
             get_key_press(e) {
                 if (e.key !== 'Enter') { return }
@@ -130,6 +132,8 @@
         mounted() {
             this.$refs.shell.focus();
             document.addEventListener("keydown", this.checkForEsc);
+
+            this.getfs();
         }
     }
 </script>
