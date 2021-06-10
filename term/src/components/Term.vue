@@ -1,8 +1,7 @@
 <template>
-    <div id="screen" ref="screen">
+    <div id="screen" ref="screen" @keydown="trigger">
         <div id="stdout">
-            <p class="inline-output" v-for="line in stdout" :key="line">
-                {{ line }}
+            <p class="inline-output" v-for="line in stdout" :key="line" v-html="line">
             </p>
         </div>
 
@@ -32,20 +31,20 @@
         },
 
         computed: {
-            ...mapGetters(['history', 'stdout', 'commands']),
+            ...mapGetters('termhistory', ['history']),
+            ...mapGetters('stdout', ['stdout']),
+            ...mapGetters('processor', ['commands']),
         },
 
         methods: {
-            ...mapActions([
-                'push', 'pop', 'run', 'stdwrite', 'stdclean'
-            ]),
+            ...mapActions('termhistory', ['push', 'pop', 'shift', 'unshift']),
+            ...mapActions('processor', ['run']),
+            ...mapActions('stdout', ['stdwrite', 'stdclear']),
 
             get_key_press(e) {
                 if (e.key !== 'Enter') { return }
+                if (this.input.endsWith('\\')) { return }
 
-                if (this.input.endsWith('\\')) {
-                    return;
-                }
                 let com = this.input.trim();
 
                 this.stdwrite(`${this.prompt_message}${com}`);
@@ -81,10 +80,56 @@
                     this.$refs.shell.style.height = '24px';
                 }
             },
+
+            trigger(e) {
+                if(e.ctrlKey && e.shiftKey && e.key === 'C') {
+                    this.stdwrite(`${this.prompt_message}${this.input}^C`);
+                    this.input = '';
+                    e.preventDefault();
+                }
+
+                if(e.key === 'ArrowUp') {
+                    e.preventDefault();
+
+                    let last_cmd = this.history[this.history.length - 1];
+                    if (last_cmd) {
+                        this.input = last_cmd;
+                    }
+
+                    this.unshift(last_cmd);
+                } else if(e.key === 'ArrowDown') {
+                    e.preventDefault();
+
+                    let prev_cmd = this.history[1];
+                    if (prev_cmd) {
+                        this.input = prev_cmd;
+                    }
+
+                    let cb = {};
+                    this.shift(cb).then(this.push(cb.out));
+                }
+
+                if(e.ctrlKey && e.key === 'l') {
+                    e.preventDefault();
+                    this.stdclear();
+                }
+
+            },
+
+            checkForEsc(e) {
+                if(e.key === 'Escape') {
+                    e.preventDefault();
+                    document.activeElement === this.$refs.shell
+                        ? this.$refs.screen.focus()
+                        : this.$refs.shell.focus();
+                }
+
+            }
         },
 
         mounted() {
             this.$refs.shell.focus();
+            document.addEventListener("keydown", this.checkForEsc);
         }
     }
 </script>

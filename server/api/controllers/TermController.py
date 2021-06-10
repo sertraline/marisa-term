@@ -52,3 +52,10 @@ class TermController:
                 'fetch': await self.service.fetch(request)
             }
         }
+
+    async def filesystem(self, request: Request):
+        return {
+            'data': {
+                'fs': await self.service.filesystem(request)
+            }
+        }

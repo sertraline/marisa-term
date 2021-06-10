@@ -40,3 +40,8 @@ async def encode(request: Request):
 @router.post('/fetch')
 async def content(request: Request):
     return await controller.fetch(request)
+
+
+@router.get('/fs')
+async def filesystem(request: Request):
+    return await controller.filesystem(request)

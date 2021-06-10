@@ -4,6 +4,7 @@ from .. import support
 from .. import validations
 import asyncio
 import pkgutil
+import os
 
 
 class DependencyInjector:
@@ -92,3 +93,6 @@ class TermService:
         split = 'split' in data
 
         return self.di.fetch.read_file(filename, split)
+
+    async def filesystem(self, request: Request):
+        return self.di.fetch.filesystem()

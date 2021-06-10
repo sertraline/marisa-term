@@ -1,6 +1,7 @@
 import * as bin from './bin';
 
 export default {
+  namespaced: true,
   state: {
       packages: [
           bin.ls,

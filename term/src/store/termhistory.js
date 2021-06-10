@@ -1,5 +1,6 @@
 
 export default {
+  namespaced: true,
   state: {
       history: []
   },
@@ -10,7 +11,10 @@ export default {
 
   mutations: {
       push: (state, item) => (state.history.push(item)),
-      shift: (state) => (state.history.shift()),
+      shift: (state, callback) => (callback.out = state.history.shift()),
+      unshift: (state, item) => (
+          state.history.pop() && state.history.unshift(item)
+      ),
       pop: (state) => (state.history.pop())
   },
 
@@ -20,7 +24,7 @@ export default {
           if (!item) { return }
 
           if(state.history.length > 25 ) {
-              commit('shift');
+              commit('shift', {});
           }
 
           console.log('push to history', item);
@@ -29,6 +33,14 @@ export default {
 
       pop({ commit }) {
           commit('pop');
+      },
+
+      shift({ commit }, callback) {
+          commit('shift', callback);
+      },
+
+      unshift({ commit }, item) {
+          commit('unshift', item);
       }
   },
 }
