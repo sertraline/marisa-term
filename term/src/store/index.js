@@ -6,12 +6,6 @@ import fs from "./fs";
 
 
 export default createStore({
-  state: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
   modules: {
     termhistory,
     processor,

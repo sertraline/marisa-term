@@ -13,9 +13,7 @@ class ListDirectory {
 
     static iter(data, target) {
         for (let key in data) {
-            console.log(data[key]['path'], target);
             if (data[key]['path'] === target) {
-                console.log('RETURN');
                 return data[key];
             }
 
@@ -35,11 +33,20 @@ class ListDirectory {
         let path = store.state.fs.path;
         let out = '..\n';
 
+        // get target node
         let arg = args.split(' ');
         if (arg.length === 0 || !arg[1]) {
             arg = path;
         } else { arg = arg[1] }
 
+        if (arg === '..') {
+            arg = path.split('/').slice(0, -1).join('/');
+            if (!arg) {
+                arg = path;
+            }
+        }
+
+        // locate requested node in filesystem
         let target = ListDirectory.iter(data, arg);
 
         if (target) {

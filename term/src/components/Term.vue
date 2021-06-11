@@ -25,7 +25,6 @@
         name: "Term",
         data() {
             return {
-                prompt_message: '#: ',
                 input: '',
             }
         },
@@ -34,7 +33,8 @@
             ...mapGetters('termhistory', ['history']),
             ...mapGetters('stdout', ['stdout']),
             ...mapGetters('processor', ['commands']),
-            ...mapGetters('fs', ['filesystem', 'index']),
+            ...mapGetters('fs', ['filesystem', 'path']),
+            prompt_message: function() { return `[${this.path}] #:` }
         },
 
         methods: {

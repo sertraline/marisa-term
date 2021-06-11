@@ -9,11 +9,12 @@ export default {
 
   getters: {
       filesystem: (state) => state.filesystem,
-      index: (state) => state.index
+      path: (state) => state.path
   },
 
   mutations: {
       setFS: (state, data) => state.filesystem = data,
+      setPath: (state, data) => state.path = data,
   },
 
   actions: {
