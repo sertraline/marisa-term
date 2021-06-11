@@ -115,7 +115,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
 marisa-term/
+dist_electron/
 
 .DS_Store
 node_modules

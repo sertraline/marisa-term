@@ -29,8 +29,8 @@ class ChangeDirectory {
     }
 
     static run(args) {
-        let data = store.state.fs.filesystem;
-        let path = store.state.fs.path;
+        let data = store.state.filesystem.filesystem;
+        let path = store.state.filesystem.path;
         let out = '';
 
         // get target node
@@ -54,7 +54,6 @@ class ChangeDirectory {
                 let fullpath = `${path}/${arg}`
                                .replace(/^\/+|\/+$/g, '');
                 target = ChangeDirectory.iter(data, fullpath);
-                console.log(target, arg);
             }
         } else {
             if (arg !== '/') {
@@ -70,7 +69,7 @@ class ChangeDirectory {
             if(target['type'] === 'F') {
                 out = `${arg}: is a file.`;
             } else {
-                store.commit('fs/setPath', target['path']);
+                store.commit('filesystem/setPath', target['path']);
             }
         }
 

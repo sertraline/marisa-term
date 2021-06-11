@@ -1,11 +1,14 @@
 <template>
     <div id="screen" ref="screen" @keydown="trigger">
         <div id="stdout">
-            <p class="inline-output" v-for="line in stdout" :key="line" v-html="line">
+            <p class="inline-output"
+               v-for="line in stdout"
+               :key="line"
+               v-html="line">
             </p>
         </div>
 
-        <div id="input">
+        <div id="input" v-if="!inprogress">
             <p id="prompt">{{ prompt_message }}</p>
             <textarea
                     @input="auto_grow"
@@ -26,6 +29,7 @@
         data() {
             return {
                 input: '',
+                inprogress: false,
             }
         },
 
@@ -33,7 +37,7 @@
             ...mapGetters('termhistory', ['history']),
             ...mapGetters('stdout', ['stdout']),
             ...mapGetters('processor', ['commands']),
-            ...mapGetters('fs', ['filesystem', 'path']),
+            ...mapGetters('filesystem', ['filesystem', 'path']),
             prompt_message: function() { return `[${this.path}] #:` }
         },
 
@@ -41,7 +45,7 @@
             ...mapActions('termhistory', ['push', 'pop', 'shift', 'unshift']),
             ...mapActions('processor', ['run']),
             ...mapActions('stdout', ['stdwrite', 'stdclear']),
-            ...mapActions('fs', ['getfs']),
+            ...mapActions('filesystem', ['getfs']),
 
             get_key_press(e) {
                 if (e.key !== 'Enter') { return }
@@ -120,6 +124,7 @@
             checkForEsc(e) {
                 if(e.key === 'Escape') {
                     e.preventDefault();
+                    if (!('shell' in this.$refs)) { return }
                     document.activeElement === this.$refs.shell
                         ? this.$refs.screen.focus()
                         : this.$refs.shell.focus();
@@ -129,7 +134,9 @@
         },
 
         mounted() {
-            this.$refs.shell.focus();
+            if ('shell' in this.$refs) {
+                this.$refs.shell.focus();
+            }
             document.addEventListener("keydown", this.checkForEsc);
 
             this.getfs();

@@ -29,8 +29,8 @@ class ListDirectory {
     }
 
     static run(args) {
-        let data = store.state.fs.filesystem;
-        let path = store.state.fs.path;
+        let data = store.state.filesystem.filesystem;
+        let path = store.state.filesystem.path;
         let out = '..\n';
 
         // get target node
