@@ -96,6 +96,42 @@ a {
     padding-left: 20px;
 }
 
+#reader-popup {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: gray;
+}
+
+
+#reader {
+    display: block;
+    position: relative;
+    left: 0px;
+    top: 10px;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: gray;
+}
+
+#reader-container {
+    padding: 5%;
+    width: 100%;
+    list-style: none;
+    position: absolute;
+}
+
+.reader-line {
+    color: white;
+}
+
 #stdout {
     display: block;
     width: 100%;

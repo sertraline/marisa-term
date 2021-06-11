@@ -1,5 +1,7 @@
 <template>
     <div id="screen" ref="screen" @keydown="trigger">
+        <Reader v-if="reader_visible" />
+
         <div id="stdout">
             <p class="inline-output"
                v-for="line in stdout"
@@ -8,7 +10,7 @@
             </p>
         </div>
 
-        <div id="input" v-if="!inprogress">
+        <div id="input" v-if="!in_progress">
             <p id="prompt">{{ prompt_message }}</p>
             <textarea
                     @input="auto_grow"
@@ -23,13 +25,17 @@
 
 <script>
     import { mapGetters, mapActions } from 'vuex';
+    import Reader from "./Reader";
 
     export default {
         name: "Term",
+        components: { Reader },
         data() {
             return {
                 input: '',
-                inprogress: false,
+                in_progress: false,
+                reader_content: '',
+                reader_visible: true,
             }
         },
 
