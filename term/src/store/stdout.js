@@ -17,7 +17,6 @@ export default {
   actions: {
       stdwrite({ commit }, item) {
           if (!item) { return }
-          console.log('push to std', item);
           commit('stdpush', item);
       },
 

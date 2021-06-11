@@ -42,6 +42,8 @@ class Processor:
                 return
 
             node['path'] = e
+            if not node['name']:
+                node['name'] = '.'
 
             stat = pathlib.Path(e).stat()
             node['created'] = stat.st_ctime
@@ -49,12 +51,14 @@ class Processor:
             node['parent'] = '/'.join(e.split('/')[:-1])
             if not node['parent']:
                 node['parent'] = '.'
-            node['children'] = []
+            if not node['path']:
+                node['path'] = '/'
+            if node['type'] == 'D':
+                node['children'] = []
             return node
 
-        fs = list(map(get_node,
-                      [f for f in glob.glob('./**', recursive=True)]
-                      )
+        fs = list(map
+                  (get_node, [f for f in glob.glob('./**', recursive=True)])
                   )
         fs = [i for i in fs if i]
 
@@ -62,6 +66,8 @@ class Processor:
             if node['parent']:
                 for parent_node in fs:
                     if node['parent'] == parent_node['path']:
-                        parent_node['children'].append(node)
-
-        return [i for i in fs if i and (not i['parent'] or i['parent'] == '.')]
+                        if 'children' in parent_node:
+                            parent_node['children'].append(node)
+        fs = [i for i in fs if (not i['parent'] or i['parent'] == '.')]
+        fs[0]['children'].extend(fs[1:])
+        return [fs[0]]

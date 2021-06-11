@@ -76,7 +76,6 @@
                 e.target.style.height = "5px";
                 e.target.style.height = (e.target.scrollHeight)+"px";
 
-                console.log(this.input.split('\n'));
                 if (!this.input.trim()) {
                     e.target.style.height = '24px';
                     this.$refs.shell.style.height = '24px';

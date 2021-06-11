@@ -27,7 +27,6 @@ export default {
               commit('shift', {});
           }
 
-          console.log('push to history', item);
           commit('push', item);
       },
 
