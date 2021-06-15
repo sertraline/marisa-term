@@ -58,7 +58,7 @@
                 in_progress: false,
                 intertype: '',
                 reader_content: [],
-                reader_mounted: true,
+                reader_mounted: false,
             }
         },
 
@@ -67,6 +67,7 @@
             ...mapGetters('stdout', ['stdout']),
             ...mapGetters('processor', ['commands']),
             ...mapGetters('filesystem', ['filesystem', 'path']),
+            ...mapGetters('http', ['response']),
             prompt_message: function() { return `[${this.path}] #:  ` }
         },
 
@@ -75,6 +76,7 @@
             ...mapActions('processor', ['run']),
             ...mapActions('stdout', ['stdwrite', 'stdclear']),
             ...mapActions('filesystem', ['getfs']),
+            ...mapActions('http', ['callApi']),
 
             get_key_press(e) {
                 if (e.key !== 'Enter') { return }
@@ -91,17 +93,15 @@
                     this.run(com).then(function(res) {
                         if ('response' in res) {
                             this.stdwrite(res['response']);
+                            this.$nextTick(function() {
+                                window.scrollTo(0, this.$refs.screen.scrollHeight)
+                            })
                         }
 
                     }.bind(this));
                 }
 
                 this.input = '';
-
-                this.$nextTick(function() {
-                    window.scrollTo(0, this.$refs.screen.scrollHeight)
-                })
-
                 e.preventDefault();
             },
 

@@ -29,43 +29,47 @@ class ListDirectory {
     }
 
     static run(args) {
-        let data = store.state.filesystem.filesystem;
-        let path = store.state.filesystem.path;
-        let out = '..\n';
+        return new Promise( (resolve) => {
+            let data = store.state.filesystem.filesystem;
+            let path = store.state.filesystem.path;
+            let out = '..\n';
 
-        // get target node
-        let arg = args.split(' ');
-        if (arg.length === 0 || !arg[1]) {
-            arg = path;
-        } else { arg = arg[1] }
-
-        if (arg === '..') {
-            arg = path.split('/').slice(0, -1).join('/');
-            if (!arg) {
+            // get target node
+            let arg = args.split(' ');
+            if (arg.length === 0 || !arg[1]) {
                 arg = path;
-            }
-        }
-
-        // locate requested node in filesystem
-        let target = ListDirectory.iter(data, arg);
-
-        if (target) {
-            if (target['type'] === 'F') {
-                out = target['name'];
             } else {
-                out += '.\n';
-                if (target['children'].length > 0) {
-                    for (let key in target['children']) {
-                        out += target['children'][key]['name'];
-                        out += '\n';
-                    }
+                arg = arg[1]
+            }
+
+            if (arg === '..') {
+                arg = path.split('/').slice(0, -1).join('/');
+                if (!arg) {
+                    arg = path;
                 }
             }
-        } else {
-            out = `ls: cannot access '${arg}': no such file or directory.`;
-        }
 
-        return {'response': out};
+            // locate requested node in filesystem
+            let target = ListDirectory.iter(data, arg);
+
+            if (target) {
+                if (target['type'] === 'F') {
+                    out = target['name'];
+                } else {
+                    out += '.\n';
+                    if (target['children'].length > 0) {
+                        for (let key in target['children']) {
+                            out += target['children'][key]['name'];
+                            out += '\n';
+                        }
+                    }
+                }
+            } else {
+                out = `ls: cannot access '${arg}': no such file or directory.`;
+            }
+
+            resolve({'response': out});
+        });
     }
 
     static help() {

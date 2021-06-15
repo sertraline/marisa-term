@@ -29,52 +29,55 @@ class ChangeDirectory {
     }
 
     static run(args) {
-        let data = store.state.filesystem.filesystem;
-        let path = store.state.filesystem.path;
-        let out = '';
+        return new Promise( (resolve) => {
+            let data = store.state.filesystem.filesystem;
+            let path = store.state.filesystem.path;
+            let out = '';
 
-        // get target node
-        let arg = args.split(' ');
-        if (arg.length === 0 || !arg[1]) {
-            arg = '/';
-        } else { arg = arg[1] }
-
-        // jump to dir above
-        if (arg === '..') {
-            arg = '/' + path.split('/').slice(0, -1).join('/');
-            if (!arg) {
-                arg = path;
-            }
-        }
-
-        let target;
-        let current_dir = ChangeDirectory.iter(data, path);
-        if (!arg.startsWith('/')) {
-            if (current_dir['children'].length > 0 ) {
-                let fullpath = `${path}/${arg}`
-                               .replace(/^\/+|\/+$/g, '');
-                target = ChangeDirectory.iter(data, fullpath);
-            }
-        } else {
-            if (arg !== '/') {
-                arg = arg.split('/').slice(1,).join('/')
-            }
-            target = ChangeDirectory.iter(data, arg);
-        }
-
-        console.log(target);
-        if (!target) {
-            out = `${arg}: no such file or directory.`;
-        } else {
-            if(target['type'] === 'F') {
-                out = `${arg}: is a file.`;
+            // get target node
+            let arg = args.split(' ');
+            if (arg.length === 0 || !arg[1]) {
+                arg = '/';
             } else {
-                store.commit('filesystem/setPath', target['path']);
+                arg = arg[1]
             }
-        }
 
-        return { 'response': out }
+            // jump to dir above
+            if (arg === '..') {
+                arg = '/' + path.split('/').slice(0, -1).join('/');
+                if (!arg) {
+                    arg = path;
+                }
+            }
 
+            let target;
+            let current_dir = ChangeDirectory.iter(data, path);
+            if (!arg.startsWith('/')) {
+                if (current_dir['children'].length > 0) {
+                    let fullpath = `${path}/${arg}`
+                        .replace(/^\/+|\/+$/g, '');
+                    target = ChangeDirectory.iter(data, fullpath);
+                }
+            } else {
+                if (arg !== '/') {
+                    arg = arg.split('/').slice(1,).join('/')
+                }
+                target = ChangeDirectory.iter(data, arg);
+            }
+
+            console.log(target);
+            if (!target) {
+                out = `${arg}: no such file or directory.`;
+            } else {
+                if (target['type'] === 'F') {
+                    out = `${arg}: is a file.`;
+                } else {
+                    store.commit('filesystem/setPath', target['path']);
+                }
+            }
+
+            resolve({'response': out});
+        });
     }
 
     static help() {

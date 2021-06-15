@@ -5,7 +5,8 @@ export default {
   state: {
       packages: [
           bin.ls,
-          bin.cd
+          bin.cd,
+          bin.cat
       ]
   },
 
@@ -43,19 +44,26 @@ export default {
        * @returns {Promise<object>}
        */
     run({ state }, payload) {
-        return new Promise( (resolve) => {
+        return new Promise( (resolve, reject) => {
 
             let id = payload.split(" ")[0];
 
             state.packages.forEach(function(pkg) {
                 let command = pkg.command;
 
+                console.log(command['id'], id);
                 if (command['id'] === id) {
-                    resolve(command['exec'](payload));
+                    try {
+                        command['exec'](payload).then((result) => {
+                            console.log(result);
+                            resolve(result);
+                        })
+                    } catch(e) {
+                        reject({'response': `term: command not found: "${id}"`});
+                    }
                 }
             });
 
-            resolve({'response': `term: command not found: "${id}"`});
         })
     }
   }

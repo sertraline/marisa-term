@@ -17,12 +17,15 @@ export default {
   actions: {
       async callApi({ commit }, path) {
           let response = await axios.post(`http://127.0.0.1:8050/${path}`);
-          commit('setResponse', response.data['data']);
+          commit('setResponse', response.data['data'][path]);
       },
 
       async fetch({ commit }, filename) {
-          let response = await axios.post(`http://127.0.0.1:8050/fetch/${filename}`);
-          commit('setResponse', response.data['data'])
+          const formData = new FormData();
+          formData.append('filename', filename);
+
+          let response = await axios.post(`http://127.0.0.1:8050/fetch`, formData);
+          commit('setResponse', response.data['data']['fetch'])
       }
   },
 }
