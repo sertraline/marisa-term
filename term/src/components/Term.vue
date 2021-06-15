@@ -1,11 +1,11 @@
 <template>
-    <div id="screen" ref="screen" @keydown="trigger">
-        <Reader v-if="reader_visible" />
+    <div id="screen" ref="screen">
+        <Reader v-if="reader_mounted" @reader_mounted="readerMountManager" />
 
         <div id="stdout">
-            <p class="inline-output"
-               v-for="line in stdout"
-               :key="line"
+            <p class ="inline-output"
+               v-for ="line in stdout"
+               :key  ="line"
                v-html="line">
             </p>
         </div>
@@ -18,8 +18,30 @@
                     v-model="input"
                     id="shell"
                     ref="shell"
-                    rows="1"></textarea>
+                    rows="1"
+            />
         </div>
+
+        <div id="upload-form" v-if="in_progress">
+            <p>Upload your file (Ctrl+Shift+C to exit):</p>
+            <form
+                    :id="intertype"
+                    method="post"
+                    enctype="multipart/form-data"
+                    action="#"
+                    @submit="callSubmit"
+            >
+                <div class="btn-wrapper">
+                    <button class="btn">Browse</button>
+                    <input type="file" name="file">
+                </div>
+                <div class="btn-wrapper">
+                    <button class="btn">Upload</button>
+                    <input type="submit" value="Upload">
+                </div>
+            </form>
+        </div>
+
     </div>
 </template>
 
@@ -34,8 +56,9 @@
             return {
                 input: '',
                 in_progress: false,
-                reader_content: '',
-                reader_visible: true,
+                intertype: '',
+                reader_content: [],
+                reader_mounted: true,
             }
         },
 
@@ -44,7 +67,7 @@
             ...mapGetters('stdout', ['stdout']),
             ...mapGetters('processor', ['commands']),
             ...mapGetters('filesystem', ['filesystem', 'path']),
-            prompt_message: function() { return `[${this.path}] #:` }
+            prompt_message: function() { return `[${this.path}] #:  ` }
         },
 
         methods: {
@@ -93,9 +116,11 @@
             },
 
             trigger(e) {
-                if(e.ctrlKey && e.shiftKey && e.key === 'C') {
+                if(e.ctrlKey && e.key === 'C') {
                     this.stdwrite(`${this.prompt_message}${this.input}^C`);
+
                     this.input = '';
+                    this.in_progress = false;
                     e.preventDefault();
                 }
 
@@ -136,16 +161,35 @@
                         : this.$refs.shell.focus();
                 }
 
+            },
+
+            callSubmit(e) {
+                e.preventDefault();
+                console.log(e);
+            },
+
+            readerMountManager(e) {
+                try {
+                    this.$refs.screen.focus();
+                    // eslint-disable-next-line no-empty
+                } catch(e) {}
+                this.reader_mounted = e;
             }
         },
 
         mounted() {
-            if ('shell' in this.$refs) {
+            if ('shell' in this.$refs && !(this.reader_mounted)) {
                 this.$refs.shell.focus();
             }
             document.addEventListener("keydown", this.checkForEsc);
+            document.addEventListener("keydown", this.trigger);
 
             this.getfs();
+        },
+
+        unmounted() {
+            document.removeEventListener("keydown", this.checkForEsc);
+            document.removeEventListener("keydown", this.trigger);
         }
     }
 </script>

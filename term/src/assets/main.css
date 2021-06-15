@@ -3,7 +3,7 @@ body,
 html {
     margin: 0 !important;
     padding: 0 !important;
-    min-height: 100vh !important
+    min-height: 100vh !important;
 }
 
 * {
@@ -96,40 +96,90 @@ a {
     padding-left: 20px;
 }
 
-#reader-popup {
+#reader-popup, #reader-overlay {
     display: block;
     position: fixed;
     left: 0;
     top: 0;
 
     width: 100%;
+    min-width: 470px;
     height: 100%;
 
-    background-color: gray;
+    background-color: black;
 }
 
+#reader-helper {
+    display: flex;
+    position: fixed;
+    top: calc(100vh - 34px);
+
+    width: 100%;
+    height: 34px;
+
+    justify-content: flex-start;
+    background-color: black;
+    z-index: 999;
+
+    padding-left: 10%;
+}
+
+#reader-helper kbd {
+    flex: 1;
+    max-width: 24px;
+    max-height: 24px;
+    margin: 5px;
+    font-weight: 700;
+}
+
+.reader-helper-text {
+    width: auto;
+    line-height: 34px;
+}
 
 #reader {
     display: block;
     position: relative;
-    left: 0px;
-    top: 10px;
+    left: 0;
 
     width: 100%;
     height: 100%;
 
-    background-color: gray;
+    background-color: black;
 }
 
 #reader-container {
-    padding: 5%;
     width: 100%;
     list-style: none;
     position: absolute;
+
+    padding-left: 10%;
+    padding-right: 10%;
 }
 
 .reader-line {
+    display: flex;
     color: white;
+    counter-reset: line 0;
+}
+
+.reader-line > * {
+    flex: 1 1 auto;
+}
+
+.line-active {
+    border: 2px solid #0082ff;
+}
+
+.counter {
+    flex: 1 1 auto;
+    width: 0;
+    margin-right: 10px;
+    padding-right: 4px;
+    text-align: right;
+
+    color: #b6b6b6;
+    background-color: #2f2f2f;
 }
 
 #stdout {
@@ -351,4 +401,20 @@ a {
     right: 0;
     z-index: 888;
     pointer-events: none
+}
+
+kbd {
+	margin: 0px 0.1em;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	border: 1px solid rgb(204, 204, 204);
+	color: rgb(51, 51, 51);
+	line-height: 16px;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 10px;
+	display: inline-block;
+	box-shadow: 0px 1px 0px rgba(0,0,0,0.2), inset 0px 0px 0px 2px #ffffff;
+	background-color: rgb(247, 247, 247);
+	-webkit-border-radius: 3px;
+	text-shadow: 0 1px 0 #fff;
 }
