@@ -6,7 +6,8 @@
             <p class ="inline-output"
                v-for ="line in stdout"
                :key  ="line"
-               v-html="line">
+               v-html="line"
+               >
             </p>
         </div>
 
@@ -58,7 +59,7 @@
                 in_progress: false,
                 intertype: '',
                 reader_content: [],
-                reader_mounted: false,
+                reader_mounted: true,
             }
         },
 

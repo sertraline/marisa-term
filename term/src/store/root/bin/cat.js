@@ -11,9 +11,15 @@ class Concat {
         'exec': Concat.run
     }
 
-    static run() {
+    static run(args) {
+        let arg = args.split(' ');
         return new Promise((resolve) => {
-            store.dispatch('http/fetch', 'router.py')
+            if (arg.length < 2) { resolve({
+                'response': 'cat.'
+            })}
+
+            let filename = arg[1];
+            store.dispatch('http/fetch', filename)
                 .then(function() {
                     resolve({
                         'response': store.state.http.response

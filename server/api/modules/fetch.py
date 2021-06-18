@@ -1,7 +1,8 @@
-from os.path import join, isfile
+from os.path import join, isfile, realpath
 import re
 import glob
 import pathlib
+import hashlib
 
 
 class Processor:
@@ -12,7 +13,31 @@ class Processor:
         self.dir = config.STATIC_DIR
 
     def read_file(self, filename, split=False):
+        def iterf(files, hashed):
+            for file in files:
+                if 'hash' in file:
+                    print(file['hash'], file['path'], hashed)
+                    if file['hash'] == hashed:
+                        return file['path']
+                if 'children' in file:
+                    path = iterf(file['children'], hashed)
+                    if path:
+                        return path
+
         path = join(self.dir, filename)
+        path = realpath(path)
+
+        hashed = hashlib.md5(path
+                             .replace('/var/www/html/content/', '')
+                             .encode('utf-8')
+                             ).hexdigest()
+        files = self.filesystem()
+        static_path = iterf(files, hashed)
+
+        if not static_path:
+            print(path, path.replace('/var/www/html/content/', ''))
+            return self.config.ERR['NOTFOUND']
+
         if not isfile(path):
             return self.config.ERR['NOTFOUND']
 
@@ -33,10 +58,7 @@ class Processor:
             if any([e.startswith(i) for i in ['marisa-term', 'env', 'venv', '__']]):
                 return
             node = {}
-            if isfile(e):
-                node['type'] = 'F'
-            else:
-                node['type'] = 'D'
+
             node['name'] = e.split('/')[-1]
             if node['name'].startswith('__') or node['name'].startswith('.'):
                 return
@@ -44,6 +66,12 @@ class Processor:
             node['path'] = e
             if not node['name']:
                 node['name'] = '.'
+
+            if isfile(e):
+                node['type'] = 'F'
+                node['hash'] = hashlib.md5(node['path'].encode('utf-8')).hexdigest()
+            else:
+                node['type'] = 'D'
 
             stat = pathlib.Path(e).stat()
             node['created'] = stat.st_ctime

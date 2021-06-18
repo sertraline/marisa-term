@@ -47,6 +47,7 @@ export default {
         return new Promise( (resolve, reject) => {
 
             let id = payload.split(" ")[0];
+            let count = 0;
 
             state.packages.forEach(function(pkg) {
                 let command = pkg.command;
@@ -61,8 +62,12 @@ export default {
                     } catch(e) {
                         reject({'response': `term: command not found: "${id}"`});
                     }
-                }
+                } else { count += 1 }
             });
+
+            if (count === state.packages.length) {
+                resolve({'response': `term: command not found: "${id}"`})
+            }
 
         })
     }
