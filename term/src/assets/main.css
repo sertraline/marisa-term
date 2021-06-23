@@ -73,6 +73,7 @@ p.inline-output {
     width: 90%;
     white-space: pre-wrap;
     color: white;
+    outline: none;
     margin: 0;
 }
 
@@ -175,6 +176,7 @@ a {
     display: flex;
     color: white;
     counter-reset: line 0;
+    outline: none;
 }
 
 .reader-line > * {

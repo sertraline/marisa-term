@@ -6,7 +6,9 @@ export default {
       packages: [
           bin.ls,
           bin.cd,
-          bin.cat
+          bin.cat,
+          bin.imgconvert,
+          bin.less
       ]
   },
 
@@ -40,10 +42,17 @@ export default {
        * Returns object that specifies
        *
        * @param state
-       * @param payload
+       * @param data
        * @returns {Promise<object>}
        */
-    run({ state }, payload) {
+    run({ state }, data) {
+
+        let payload = data['data'];
+        let stdin;
+        if ('stdin' in data) {
+            stdin = data['stdin'];
+        }
+
         return new Promise( (resolve, reject) => {
 
             let id = payload.split(" ")[0];
@@ -52,10 +61,17 @@ export default {
             state.packages.forEach(function(pkg) {
                 let command = pkg.command;
 
-                console.log(command['id'], id);
+                let args;
+                if(stdin) {
+                    args = [payload, stdin];
+                } else {
+                    args = [payload]
+                }
+
                 if (command['id'] === id) {
                     try {
-                        command['exec'](payload).then((result) => {
+                        console.log('exec with args ', ...args);
+                        command['exec'](...args).then((result) => {
                             console.log(result);
                             resolve(result);
                         })

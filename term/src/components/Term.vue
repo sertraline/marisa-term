@@ -1,6 +1,9 @@
 <template>
     <div id="screen" ref="screen">
-        <Reader v-if="reader_mounted" @reader_mounted="readerMountManager" />
+        <Reader
+                v-if="reader_mounted"
+                :plaintext="reader_content"
+                @reader_mounted="readerMountManager" />
 
         <div id="stdout">
             <p class ="inline-output"
@@ -23,7 +26,7 @@
             />
         </div>
 
-        <div id="upload-form" v-if="in_progress">
+        <div id="upload-form" ref="uploadform" v-if="in_progress">
             <p>Upload your file (Ctrl+Shift+C to exit):</p>
             <form
                     :id="intertype"
@@ -56,10 +59,11 @@
         data() {
             return {
                 input: '',
-                in_progress: false,
                 intertype: '',
+                args: '',
+                in_progress: false,
                 reader_content: [],
-                reader_mounted: true,
+                reader_mounted: false,
             }
         },
 
@@ -79,6 +83,53 @@
             ...mapActions('filesystem', ['getfs']),
             ...mapActions('http', ['callApi']),
 
+            runner(com, stdin = null) {
+                let pipe;
+                let pipe_stdin;
+                let check = com.split(' | ');
+
+                // commit to history
+                if (!stdin) { this.push(com); }
+
+                if (check) {
+                    com = check[0];
+                    pipe = check[1];
+                }
+
+                let args;
+                if (stdin) {
+                    args = { 'data': com, 'stdin': stdin }
+                } else {
+                    args = { 'data': com }
+                }
+                this.run(args).then(function(res) {
+                    if ('mount' in res) {
+                        switch (res['mount']) {
+                            case 'reader':
+                                this.reader_mounted = true;
+                                this.reader_content = res['response'].split('\n');
+                        }
+                    } else if ('response' in res) {
+
+                        if (!pipe) { this.stdwrite(res['response']); }
+                        if (pipe) { pipe_stdin = res['response']; }
+
+                        if (pipe) {
+                            this.runner(pipe, pipe_stdin);
+                        }
+
+                        this.$nextTick(function() {
+                            window.scrollTo(0, this.$refs.screen.scrollHeight)
+                        })
+                    } else if ('intertype' in res) {
+                        this.intertype = res['intertype'];
+                        this.args = res['args'];
+                        this.in_progress = true;
+                    }
+
+                }.bind(this));
+            },
+
             get_key_press(e) {
                 if (e.key !== 'Enter') { return }
                 if (this.input.endsWith('\\')) { return }
@@ -88,18 +139,7 @@
                 this.stdwrite(`${this.prompt_message}${com}`);
 
                 if (com) {
-                    // commit to history
-                    this.push(com);
-
-                    this.run(com).then(function(res) {
-                        if ('response' in res) {
-                            this.stdwrite(res['response']);
-                            this.$nextTick(function() {
-                                window.scrollTo(0, this.$refs.screen.scrollHeight)
-                            })
-                        }
-
-                    }.bind(this));
+                    this.runner(com);
                 }
 
                 this.input = '';
@@ -166,7 +206,19 @@
 
             callSubmit(e) {
                 e.preventDefault();
-                console.log(e);
+                const form = this.$refs.uploadform
+                                 .querySelector('form');
+                const file = form.querySelector('input').files[0];
+                const path = form.getAttribute('id');
+                this.callApi({ 'path': path, 'args': this.args, 'file': file })
+                    .then(function() {
+                        if (this.response) {
+                            this.stdwrite(this.response);
+                        }
+                        this.in_progress = false;
+                        }.bind(this)
+                )
+
             },
 
             readerMountManager(e) {

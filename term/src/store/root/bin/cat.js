@@ -11,11 +11,15 @@ class Concat {
         'exec': Concat.run
     }
 
-    static run(args) {
+    static run(args, stdin = null) {
+        console.log('args cat: ', args, stdin);
         let arg = args.split(' ');
+
         return new Promise((resolve) => {
-            if (arg.length < 2) { resolve({
+            if (arg.length < 2 && !stdin) { resolve({
                 'response': 'cat.'
+            })} else if (arg.length < 2 && stdin) { resolve( {
+                'response': stdin
             })}
 
             let filename = arg[1];

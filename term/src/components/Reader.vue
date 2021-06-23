@@ -4,14 +4,21 @@
             <div id="reader" ref="reader">
                 <ul id="reader-container" ref="readercontainer">
                     <li class="reader-line" v-for="(line, index) in contents" :key="index">
-                        <span class="counter" contenteditable="false">{{ index }}</span>
-                        <div :id="`content-container-${index}`"
-                           class="content-container"
-                           tabindex="-1"
-                           :key="line"
-                           v-html="line"
-                           contenteditable="true"
-                           @keydown="inputMovement" />
+                        <span
+                                class="counter"
+                                contenteditable="false"
+                        >
+                            {{ index }}
+                        </span>
+                        <div
+                                :id="`content-container-${index}`"
+                                class="content-container"
+                                tabindex="-1"
+                                :key="line"
+                                v-html="line"
+                                contenteditable="true"
+                                @keydown="inputMovement"
+                        />
                     </li>
                 </ul>
             </div>
@@ -32,17 +39,27 @@
 <script>
     export default {
         name: "Reader",
-        //props: ['contents'],
-        props: ['reader_mounted'],
+        props: ['reader_mounted', 'plaintext'],
         data() {
             return {
-                contents: Array.from({length: 55}, () => '<p>'+Math.floor(Math.random() * 240)+'</p>'),
                 awaits_scroll: false,
                 awaits_scroll_jump: '',
                 input_mode: false,
                 last_line: 0,
-                status: ''
+                status: '',
+                plaintext_copy: this.plaintext.slice(0)
             }
+        },
+
+        computed: {
+            contents() {
+                return this.plaintext_copy.map(
+                    (el) => {
+                        return `<p>${el}</p>`
+                    }
+                )
+            }
+
         },
 
         methods: {
@@ -237,6 +254,11 @@
             },
 
             inputMovement(e) {
+                console.log(e.key);
+                if(e.key === 'Tab') {
+                    e.preventDefault();
+                    return;
+                }
                 if(e.key === 'ArrowUp') {
                     // focus previous element and scroll up
                     let div = e.target.parentNode.previousElementSibling;
@@ -287,11 +309,12 @@
                                    .split('-')
                                    .slice(-1)[0];
                     id = Number(id);
-                    this.contents.splice(id+1, 0, node.outerHTML);
+                    this.plaintext_copy.splice(id+1, 0, node.outerHTML);
                     setTimeout(function() {
                             let el = document.querySelector(`div#content-container-${id+1}`);
                             this.setLineActive(el.parentNode);
                             el.focus();
+                            console.log('set focus')
                         }.bind(this), 0);
                     e.preventDefault();
                 }
